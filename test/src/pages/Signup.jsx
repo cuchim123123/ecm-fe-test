@@ -17,24 +17,41 @@ const Signup = () => {
         e.preventDefault()
         setLoading(true)
 
-        const fullname = e.target.fullname.value.trim()
+        const fullName = e.target.fullname.value.trim()
+        const username = e.target.username.value.trim()
         const email = e.target.email.value.trim()
         const phone = e.target.phone.value.trim()
         const password = e.target.password.value.trim()
 
         try {
-            const res = await fetch("http://localhost:5000/api/auth/signup", {
+            console.log('Sending registration data:', { fullName, username, email, phone, password })
+
+            const res = await fetch(`/api/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ fullname, email, phone, password })
+                body: JSON.stringify({ fullName, username, email, phone, password })
             })
 
-            const data = await res.json()
+            const responseText = await res.text()
+            console.log('Server response text:', responseText)
 
-            if (!res.ok) throw new Error(data.message || "Signup failed")
+            let data
+            try {
+                data = JSON.parse(responseText)
+            } catch (e) {
+                console.error('Error parsing JSON:', e)
+                throw new Error('Invalid server response')
+            }
 
+            if (!res.ok) {
+                console.error('Server error:', data)
+                throw new Error(data.message || "Registration failed: " + JSON.stringify(data))
+            }
 
-            toast("Account created successfully!", "success")
+            toast("Account created successfully!", {
+                description: "Redirecting to login...",
+                type: "success"
+            })
             setTimeout(() => navigate("/login"), 500)
 
         } catch (err) {
@@ -59,13 +76,37 @@ const Signup = () => {
                 <CardContent>
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                         <div className='flex flex-col gap-1'>
-                            <Label htmlFor="password">Full name</Label>
-                            <Input id="fullname" type="text" placeholder="Nigger One" required />
+                            <Label htmlFor="fullname">Full name</Label>
+                            <Input
+                                id="fullname"
+                                type="text"
+                                placeholder="John Doe"
+                                required
+                                minLength={3}
+                                maxLength={100}
+                            />
+                        </div>
+
+                        <div className='flex flex-col gap-1'>
+                            <Label htmlFor="username">Username</Label>
+                            <Input
+                                id="username"
+                                type="text"
+                                placeholder="johndoe123"
+                                required
+                                pattern="^[a-zA-Z0-9]{3,30}$"
+                                title="Username must be 3-30 characters long and contain only letters and numbers"
+                            />
                         </div>
 
                         <div className='flex flex-col gap-1'>
                             <Label htmlFor="email">Email</Label>
-                            <Input id="email" type="email" placeholder="nigga@mail.com" required />
+                            <Input
+                                id="email"
+                                type="email"
+                                placeholder="john@example.com"
+                                required
+                            />
                         </div>
 
                         <div className="flex flex-col gap-1">
@@ -95,9 +136,6 @@ const Signup = () => {
                 </CardContent>
 
                 <CardFooter className="text-sm text-center text-gray-600 dark:text-gray-400 flex flex-col gap-2">
-                    <Link to="#" className="hover:underline">
-                        Forgot password?
-                    </Link>
                     <p>
                         Already had an account?{" "}
                         <Link to="/login" className="text-blue-600 hover:underline dark:text-blue-400">

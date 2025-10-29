@@ -21,7 +21,7 @@ const Login = () => {
     const password = e.target.password.value
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -80,13 +80,17 @@ const Login = () => {
               <Button type="button" disabled={loading} className="w-full mt-2 cursor-pointer bg-gray-500">
                 MOCK
               </Button>
-              
+
             </div>
-            
+
           </form>
         </CardContent>
 
+
         <CardFooter className="text-sm text-center text-gray-600 dark:text-gray-400 flex flex-col gap-2">
+          <Link to="#" className="hover:underline">
+            Forgot password?
+          </Link>
           <p>
             Don’t have an account?{" "}
             <Link to="/signup" className="text-blue-600 hover:underline dark:text-blue-400">

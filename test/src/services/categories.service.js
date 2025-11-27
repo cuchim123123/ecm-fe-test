@@ -7,34 +7,34 @@ import { getAuthHeaders } from '../utils/authHelpers';
  * @returns {Promise<Array>}
  */
 export const getCategories = async () => {
-  try {
-    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CATEGORIES}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeaders(),
-      },
-    });
-    
-    const data = await handleResponse(response);
-    
-    // Handle different response formats
-    // If data is wrapped in a 'categories' property
-    if (data && data.categories) {
-      return Array.isArray(data.categories) ? data.categories : [];
+    try {
+        const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CATEGORIES}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+        });
+
+        const data = await handleResponse(response);
+
+        // Handle different response formats
+        // If data is wrapped in a 'categories' property
+        if (data && data.categories) {
+            return Array.isArray(data.categories) ? data.categories : [];
+        }
+
+        // If data is wrapped in a 'data' property
+        if (data && data.data) {
+            return Array.isArray(data.data) ? data.data : [];
+        }
+
+        // If data is already an array
+        return Array.isArray(data) ? data : [];
+    } catch (error) {
+        console.error('Categories service error:', error);
+        throw error;
     }
-    
-    // If data is wrapped in a 'data' property
-    if (data && data.data) {
-      return Array.isArray(data.data) ? data.data : [];
-    }
-    
-    // If data is already an array
-    return Array.isArray(data) ? data : [];
-  } catch (error) {
-    console.error('Categories service error:', error);
-    throw error;
-  }
 };
 
 /**
@@ -43,15 +43,18 @@ export const getCategories = async () => {
  * @returns {Promise<Object>}
  */
 export const getCategoryById = async (id) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CATEGORIES}/${id}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.CATEGORIES}/${id}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+        },
+    );
+
+    return handleResponse(response);
 };
 
 /**
@@ -60,15 +63,18 @@ export const getCategoryById = async (id) => {
  * @returns {Promise<Object>}
  */
 export const getCategoryBySlug = async (slug) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CATEGORIES}/slug/${slug}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.CATEGORIES}/slug/${slug}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+        },
+    );
+
+    return handleResponse(response);
 };
 
 /**
@@ -77,16 +83,16 @@ export const getCategoryBySlug = async (slug) => {
  * @returns {Promise<Object>}
  */
 export const createCategory = async (categoryData) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CATEGORIES}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify(categoryData),
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CATEGORIES}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify(categoryData),
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -96,16 +102,19 @@ export const createCategory = async (categoryData) => {
  * @returns {Promise<Object>}
  */
 export const updateCategory = async (id, categoryData) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CATEGORIES}/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify(categoryData),
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.CATEGORIES}/${id}`,
+        {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+            body: JSON.stringify(categoryData),
+        },
+    );
+
+    return handleResponse(response);
 };
 
 /**
@@ -114,13 +123,16 @@ export const updateCategory = async (id, categoryData) => {
  * @returns {Promise<Object>}
  */
 export const deleteCategory = async (id) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.CATEGORIES}/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.CATEGORIES}/${id}`,
+        {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+        },
+    );
+
+    return handleResponse(response);
 };

@@ -7,8 +7,10 @@ import apiClient from './config';
  * @returns {Promise<Object>} - Reviews data with pagination
  */
 export const getProductReviews = async (productId, params = {}) => {
-  const response = await apiClient.get(`/reviews/product/${productId}`, { params });
-  return response;
+    const response = await apiClient.get(`/reviews/product/${productId}`, {
+        params,
+    });
+    return response;
 };
 
 /**
@@ -17,24 +19,24 @@ export const getProductReviews = async (productId, params = {}) => {
  * @returns {Promise<Object>} - Created review with populated user data
  */
 export const createReview = async (reviewData) => {
-  // Validate required fields
-  if (!reviewData.productId) {
-    throw new Error('Product ID is required');
-  }
-  if (!reviewData.variantId) {
-    throw new Error('Variant ID is required');
-  }
-  if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
-    throw new Error('Rating must be between 1 and 5');
-  }
+    // Validate required fields
+    if (!reviewData.productId) {
+        throw new Error('Product ID is required');
+    }
+    if (!reviewData.variantId) {
+        throw new Error('Variant ID is required');
+    }
+    if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
+        throw new Error('Rating must be between 1 and 5');
+    }
 
-  const response = await apiClient.post('/reviews', {
-    productId: reviewData.productId,
-    variantId: reviewData.variantId,
-    rating: reviewData.rating,
-    comment: reviewData.comment?.trim() || '',
-  });
-  return response;
+    const response = await apiClient.post('/reviews', {
+        productId: reviewData.productId,
+        variantId: reviewData.variantId,
+        rating: reviewData.rating,
+        comment: reviewData.comment?.trim() || '',
+    });
+    return response;
 };
 
 /**
@@ -44,15 +46,15 @@ export const createReview = async (reviewData) => {
  * @returns {Promise<Object>} - Updated review with populated user data
  */
 export const updateReview = async (reviewId, reviewData) => {
-  if (reviewData.rating && (reviewData.rating < 1 || reviewData.rating > 5)) {
-    throw new Error('Rating must be between 1 and 5');
-  }
+    if (reviewData.rating && (reviewData.rating < 1 || reviewData.rating > 5)) {
+        throw new Error('Rating must be between 1 and 5');
+    }
 
-  const response = await apiClient.patch(`/reviews/${reviewId}`, {
-    rating: reviewData.rating,
-    comment: reviewData.comment?.trim(),
-  });
-  return response;
+    const response = await apiClient.patch(`/reviews/${reviewId}`, {
+        rating: reviewData.rating,
+        comment: reviewData.comment?.trim(),
+    });
+    return response;
 };
 
 /**
@@ -61,8 +63,8 @@ export const updateReview = async (reviewId, reviewData) => {
  * @returns {Promise<Object>} - Deletion confirmation
  */
 export const deleteReview = async (reviewId) => {
-  const response = await apiClient.delete(`/reviews/${reviewId}`);
-  return response;
+    const response = await apiClient.delete(`/reviews/${reviewId}`);
+    return response;
 };
 
 /**
@@ -71,13 +73,16 @@ export const deleteReview = async (reviewId) => {
  * @returns {Promise<number>} - Number of reviews
  */
 export const getReviewCount = async (productId) => {
-  try {
-    const result = await getProductReviews(productId, { limit: 1, page: 1 });
-    return result.metadata?.total || 0;
-  } catch (error) {
-    console.error('Error getting review count:', error);
-    return 0;
-  }
+    try {
+        const result = await getProductReviews(productId, {
+            limit: 1,
+            page: 1,
+        });
+        return result.metadata?.total || 0;
+    } catch (error) {
+        console.error('Error getting review count:', error);
+        return 0;
+    }
 };
 
 /**
@@ -87,14 +92,17 @@ export const getReviewCount = async (productId) => {
  * @returns {Promise<boolean>} - True if user has reviewed the product
  */
 export const hasUserReviewedProduct = async (productId, userId) => {
-  try {
-    const result = await getProductReviews(productId);
-    const reviews = result.metadata?.reviews || [];
-    return reviews.some(review => review.userId?._id === userId || review.userId === userId);
-  } catch (error) {
-    console.error('Error checking user review:', error);
-    return false;
-  }
+    try {
+        const result = await getProductReviews(productId);
+        const reviews = result.metadata?.reviews || [];
+        return reviews.some(
+            (review) =>
+                review.userId?._id === userId || review.userId === userId,
+        );
+    } catch (error) {
+        console.error('Error checking user review:', error);
+        return false;
+    }
 };
 
 /**
@@ -103,36 +111,40 @@ export const hasUserReviewedProduct = async (productId, userId) => {
  * @returns {Promise<Object>} - Review statistics (total, averageRating, distribution)
  */
 export const getReviewStats = async (productId) => {
-  try {
-    const result = await getProductReviews(productId, { limit: 1000, page: 1 });
-    const reviews = result.metadata?.reviews || [];
-    
-    // Calculate rating distribution
-    const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    let totalRating = 0;
-    
-    reviews.forEach(review => {
-      if (review.rating && review.rating >= 1 && review.rating <= 5) {
-        distribution[review.rating]++;
-        totalRating += review.rating;
-      }
-    });
-    
-    const averageRating = reviews.length > 0 ? (totalRating / reviews.length).toFixed(1) : 0;
-    
-    return {
-      total: result.metadata?.total || reviews.length,
-      count: reviews.length,
-      averageRating: parseFloat(averageRating),
-      distribution,
-    };
-  } catch (error) {
-    console.error('Error getting review stats:', error);
-    return {
-      total: 0,
-      count: 0,
-      averageRating: 0,
-      distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
-    };
-  }
+    try {
+        const result = await getProductReviews(productId, {
+            limit: 1000,
+            page: 1,
+        });
+        const reviews = result.metadata?.reviews || [];
+
+        // Calculate rating distribution
+        const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        let totalRating = 0;
+
+        reviews.forEach((review) => {
+            if (review.rating && review.rating >= 1 && review.rating <= 5) {
+                distribution[review.rating]++;
+                totalRating += review.rating;
+            }
+        });
+
+        const averageRating =
+            reviews.length > 0 ? (totalRating / reviews.length).toFixed(1) : 0;
+
+        return {
+            total: result.metadata?.total || reviews.length,
+            count: reviews.length,
+            averageRating: parseFloat(averageRating),
+            distribution,
+        };
+    } catch (error) {
+        console.error('Error getting review stats:', error);
+        return {
+            total: 0,
+            count: 0,
+            averageRating: 0,
+            distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+        };
+    }
 };

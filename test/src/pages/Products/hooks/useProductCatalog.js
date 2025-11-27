@@ -4,7 +4,7 @@ import { getProducts, getProductCategories } from '@/services/products.service';
 
 /**
  * Custom hook for managing product catalog state and data fetching
- * 
+ *
  * PAGINATION CONFIGURATION:
  * - Products per page: 24 (divisible by 2, 3, 4, 6 for responsive grids)
  * - Desktop grid: 4 columns (220px cards)
@@ -13,158 +13,173 @@ import { getProducts, getProductCategories } from '@/services/products.service';
  * - Backend limit: Default 20, we override with explicit value
  */
 export const useProductCatalog = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  
-  // State
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [brands, setBrands] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalProducts, setTotalProducts] = useState(0);
-  
-  // Products per page: 24 works well with grid layouts (2, 3, 4, 6 columns)
-  const PRODUCTS_PER_PAGE = 24;
+    const [searchParams, setSearchParams] = useSearchParams();
 
-  // Get filters from URL (memoized to prevent unnecessary re-renders)
-  const filters = useMemo(() => ({
-    search: searchParams.get('search') || '',
-    category: searchParams.get('category') || '',
-    brand: searchParams.get('brand') || '',
-    minPrice: searchParams.get('minPrice') || '',
-    maxPrice: searchParams.get('maxPrice') || '',
-    rating: searchParams.get('rating') || '',
-    sortBy: searchParams.get('sortBy') || 'createdAt',
-    sortOrder: searchParams.get('sortOrder') || 'desc',
-  }), [searchParams]);
+    // State
+    const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [brands, setBrands] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalProducts, setTotalProducts] = useState(0);
 
-  // Fetch products with debouncing and abort control
-  const abortControllerRef = useRef(null);
-  
-  useEffect(() => {
-    // Cancel previous request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    
-    const fetchProducts = async () => {
-      // Create new abort controller for this request
-      abortControllerRef.current = new AbortController();
-      
-      try {
-        setLoading(true);
-        setError(null);
+    // Products per page: 24 works well with grid layouts (2, 3, 4, 6 columns)
+    const PRODUCTS_PER_PAGE = 24;
 
-        const params = {
-          page: currentPage,
-          limit: PRODUCTS_PER_PAGE, // Explicit limit to override backend default (20)
-        };
+    // Get filters from URL (memoized to prevent unnecessary re-renders)
+    const filters = useMemo(
+        () => ({
+            search: searchParams.get('search') || '',
+            category: searchParams.get('category') || '',
+            brand: searchParams.get('brand') || '',
+            minPrice: searchParams.get('minPrice') || '',
+            maxPrice: searchParams.get('maxPrice') || '',
+            rating: searchParams.get('rating') || '',
+            sortBy: searchParams.get('sortBy') || 'createdAt',
+            sortOrder: searchParams.get('sortOrder') || 'desc',
+        }),
+        [searchParams],
+    );
 
-        // Add sort parameter (backend expects "field:order" format)
-        if (filters.sortBy && filters.sortOrder) {
-          params.sort = `${filters.sortBy}:${filters.sortOrder}`;
+    // Fetch products with debouncing and abort control
+    const abortControllerRef = useRef(null);
+
+    useEffect(() => {
+        // Cancel previous request
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
         }
 
-        // Add filters if present (using correct backend parameter names)
-        if (filters.search) params.keyword = filters.search;
-        if (filters.category) params.categoryId = filters.category;
-        // Brand filtering not supported by backend yet
-        // if (filters.brand) params.brand = filters.brand;
-        if (filters.minPrice) params.minPrice = filters.minPrice;
-        if (filters.maxPrice) params.maxPrice = filters.maxPrice;
-        if (filters.rating) params.minRating = filters.rating;
+        const fetchProducts = async () => {
+            // Create new abort controller for this request
+            abortControllerRef.current = new AbortController();
 
-        const response = await getProducts(params);
-        
-        // Mock returns { products: [...], pagination: { total, totalPages, page, limit, hasMore } }
-        // Backend returns { products: [...], pagination: { totalProducts, totalPages, currentPage, limit } }
-        setProducts(response.products || response || []);
-        setTotalPages(response.pagination?.totalPages || 1);
-        setTotalProducts(response.pagination?.total || response.pagination?.totalProducts || response.length || 0);
-      } catch (err) {
-        console.error('Error fetching products:', err);
-        setError(err.message || 'Failed to load products');
-      } finally {
-        setLoading(false);
-      }
+            try {
+                setLoading(true);
+                setError(null);
+
+                const params = {
+                    page: currentPage,
+                    limit: PRODUCTS_PER_PAGE, // Explicit limit to override backend default (20)
+                };
+
+                // Add sort parameter (backend expects "field:order" format)
+                if (filters.sortBy && filters.sortOrder) {
+                    params.sort = `${filters.sortBy}:${filters.sortOrder}`;
+                }
+
+                // Add filters if present (using correct backend parameter names)
+                if (filters.search) params.keyword = filters.search;
+                if (filters.category) params.categoryId = filters.category;
+                // Brand filtering not supported by backend yet
+                // if (filters.brand) params.brand = filters.brand;
+                if (filters.minPrice) params.minPrice = filters.minPrice;
+                if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+                if (filters.rating) params.minRating = filters.rating;
+
+                const response = await getProducts(params);
+
+                // Mock returns { products: [...], pagination: { total, totalPages, page, limit, hasMore } }
+                // Backend returns { products: [...], pagination: { totalProducts, totalPages, currentPage, limit } }
+                setProducts(response.products || response || []);
+                setTotalPages(response.pagination?.totalPages || 1);
+                setTotalProducts(
+                    response.pagination?.total ||
+                        response.pagination?.totalProducts ||
+                        response.length ||
+                        0,
+                );
+            } catch (err) {
+                console.error('Error fetching products:', err);
+                setError(err.message || 'Failed to load products');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, [currentPage, filters]); // filters is memoized by searchParams
+
+    // Fetch metadata (categories and brands)
+    useEffect(() => {
+        const fetchMetadata = async () => {
+            try {
+                const categoriesData = await getProductCategories();
+                setCategories(categoriesData || []);
+
+                // Fetch all products to extract unique brands
+                // Note: Backend doesn't have brand field yet, so brands will be empty
+                const allProducts = await getProducts({
+                    status: 'all',
+                    limit: 1000,
+                });
+                const productsArray = allProducts.products || allProducts || [];
+                const uniqueBrands = [
+                    ...new Set(
+                        productsArray.map((p) => p.brand).filter(Boolean),
+                    ),
+                ];
+                setBrands(uniqueBrands);
+            } catch (err) {
+                console.error('Error fetching metadata:', err);
+            }
+        };
+
+        fetchMetadata();
+    }, []);
+
+    // Update filter in URL
+    const handleFilterChange = (filterName, value) => {
+        const newParams = new URLSearchParams(searchParams);
+
+        if (value) {
+            newParams.set(filterName, value);
+        } else {
+            newParams.delete(filterName);
+        }
+
+        setCurrentPage(1);
+        setSearchParams(newParams);
     };
 
-    fetchProducts();
-  }, [currentPage, filters]); // filters is memoized by searchParams
-
-  // Fetch metadata (categories and brands)
-  useEffect(() => {
-    const fetchMetadata = async () => {
-      try {
-        const categoriesData = await getProductCategories();
-        setCategories(categoriesData || []);
-
-        // Fetch all products to extract unique brands
-        // Note: Backend doesn't have brand field yet, so brands will be empty
-        const allProducts = await getProducts({ status: 'all', limit: 1000 });
-        const productsArray = allProducts.products || allProducts || [];
-        const uniqueBrands = [...new Set(
-          productsArray
-            .map(p => p.brand)
-            .filter(Boolean)
-        )];
-        setBrands(uniqueBrands);
-      } catch (err) {
-        console.error('Error fetching metadata:', err);
-      }
+    // Update sort
+    const handleSortChange = (newSortBy, newSortOrder) => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('sortBy', newSortBy);
+        newParams.set('sortOrder', newSortOrder);
+        setSearchParams(newParams);
     };
 
-    fetchMetadata();
-  }, []);
+    // Clear all filters
+    const clearFilters = () => {
+        setSearchParams({});
+        setCurrentPage(1);
+    };
 
-  // Update filter in URL
-  const handleFilterChange = (filterName, value) => {
-    const newParams = new URLSearchParams(searchParams);
-    
-    if (value) {
-      newParams.set(filterName, value);
-    } else {
-      newParams.delete(filterName);
-    }
-    
-    setCurrentPage(1);
-    setSearchParams(newParams);
-  };
+    // Check if any filters are active (exclude brand since not supported)
+    const hasActiveFilters =
+        filters.search ||
+        filters.category ||
+        filters.minPrice ||
+        filters.maxPrice ||
+        filters.rating;
 
-  // Update sort
-  const handleSortChange = (newSortBy, newSortOrder) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set('sortBy', newSortBy);
-    newParams.set('sortOrder', newSortOrder);
-    setSearchParams(newParams);
-  };
-
-  // Clear all filters
-  const clearFilters = () => {
-    setSearchParams({});
-    setCurrentPage(1);
-  };
-
-  // Check if any filters are active (exclude brand since not supported)
-  const hasActiveFilters = filters.search || filters.category || 
-                          filters.minPrice || filters.maxPrice || filters.rating;
-
-  return {
-    products,
-    categories,
-    brands,
-    loading,
-    error,
-    currentPage,
-    totalPages,
-    totalProducts,
-    filters,
-    hasActiveFilters,
-    setCurrentPage,
-    handleFilterChange,
-    handleSortChange,
-    clearFilters,
-  };
+    return {
+        products,
+        categories,
+        brands,
+        loading,
+        error,
+        currentPage,
+        totalPages,
+        totalProducts,
+        filters,
+        hasActiveFilters,
+        setCurrentPage,
+        handleFilterChange,
+        handleSortChange,
+        clearFilters,
+    };
 };

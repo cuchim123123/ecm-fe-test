@@ -1,232 +1,264 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+import {
+    ArrowRight,
+    ChevronLeft,
+    ChevronRight,
+    MoreHorizontal,
+} from 'lucide-react';
 import { ProductCard, ScrollArrows } from '@/components/common';
 import { useProducts } from '@/hooks';
 import { getCategories } from '@/services/categories.service';
 import './CategorizedProductsSection.css';
 
 const CategorizedProductsSection = () => {
-  const [categories, setCategories] = useState([]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [showAllCategories, setShowAllCategories] = useState(false);
-  const scrollRef = useRef(null);
-  const tabsScrollRef = useRef(null);
-  const navigate = useNavigate();
-  
-  const { products: allProducts, loading: productsLoading } = useProducts();
+    const [categories, setCategories] = useState([]);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [showAllCategories, setShowAllCategories] = useState(false);
+    const scrollRef = useRef(null);
+    const tabsScrollRef = useRef(null);
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(productsLoading);
-        
-        const categoriesResponse = await getCategories();
-        const allCategories = Array.isArray(categoriesResponse)
-          ? categoriesResponse
-          : (categoriesResponse.categories || categoriesResponse.data || []);
-        
-        // Create category data with products
-        const categoryData = allCategories.map((category) => {
-          const categoryProducts = allProducts.filter(p => 
-            Array.isArray(p.categoryId) 
-              ? p.categoryId.some(catId => catId === category._id || catId._id === category._id)
-              : p.categoryId === category._id || p.categoryId?._id === category._id
-          ).slice(0, 10);
-          
-          return {
-            id: category._id,
-            name: category.name,
-            description: category.description || 'Discover our collection',
-            products: categoryProducts,
-            viewAllLink: `/products?category=${category._id}`,
-            bgImageUrl: category.backgroundImage || '', // Add background images later
-          };
-        }).filter(cat => cat.products.length > 0);
-        
-        setCategories(categoryData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
+    const { products: allProducts, loading: productsLoading } = useProducts();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(productsLoading);
+
+                const categoriesResponse = await getCategories();
+                const allCategories = Array.isArray(categoriesResponse)
+                    ? categoriesResponse
+                    : categoriesResponse.categories ||
+                      categoriesResponse.data ||
+                      [];
+
+                // Create category data with products
+                const categoryData = allCategories
+                    .map((category) => {
+                        const categoryProducts = allProducts
+                            .filter((p) =>
+                                Array.isArray(p.categoryId)
+                                    ? p.categoryId.some(
+                                          (catId) =>
+                                              catId === category._id ||
+                                              catId._id === category._id,
+                                      )
+                                    : p.categoryId === category._id ||
+                                      p.categoryId?._id === category._id,
+                            )
+                            .slice(0, 10);
+
+                        return {
+                            id: category._id,
+                            name: category.name,
+                            description:
+                                category.description ||
+                                'Discover our collection',
+                            products: categoryProducts,
+                            viewAllLink: `/products?category=${category._id}`,
+                            bgImageUrl: category.backgroundImage || '', // Add background images later
+                        };
+                    })
+                    .filter((cat) => cat.products.length > 0);
+
+                setCategories(categoryData);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [allProducts, productsLoading]);
+
+    const scroll = (direction) => {
+        if (scrollRef.current) {
+            const scrollAmount = 800;
+            scrollRef.current.scrollBy({
+                left: direction === 'left' ? -scrollAmount : scrollAmount,
+                behavior: 'smooth',
+            });
+        }
     };
 
-    fetchData();
-  }, [allProducts, productsLoading]);
+    const scrollTabs = (direction) => {
+        if (tabsScrollRef.current) {
+            const scrollAmount = 300;
+            tabsScrollRef.current.scrollBy({
+                left: direction === 'left' ? -scrollAmount : scrollAmount,
+                behavior: 'smooth',
+            });
+        }
+    };
 
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const scrollAmount = 800;
-      scrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
+    const handleProductClick = (product) => {
+        navigate(`/products/${product._id}`);
+    };
+
+    const handleViewAll = () => {
+        if (activeCategory?.viewAllLink) {
+            navigate(activeCategory.viewAllLink);
+        }
+    };
+
+    if (loading) {
+        return (
+            <section className="categorized-products-loading">
+                <p>Loading categories...</p>
+            </section>
+        );
     }
-  };
 
-  const scrollTabs = (direction) => {
-    if (tabsScrollRef.current) {
-      const scrollAmount = 300;
-      tabsScrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
+    if (categories.length === 0) {
+        return null;
     }
-  };
 
-  const handleProductClick = (product) => {
-    navigate(`/products/${product._id}`);
-  };
+    const activeCategory = categories[activeIndex];
+    const MAX_VISIBLE_TABS = 6;
+    const visibleCategories = showAllCategories
+        ? categories
+        : categories.slice(0, MAX_VISIBLE_TABS);
+    const hasMoreCategories = categories.length > MAX_VISIBLE_TABS;
 
-  const handleViewAll = () => {
-    if (activeCategory?.viewAllLink) {
-      navigate(activeCategory.viewAllLink);
-    }
-  };
-
-  if (loading) {
     return (
-      <section className="categorized-products-loading">
-        <p>Loading categories...</p>
-      </section>
-    );
-  }
+        <div className="categorized-products-showcase">
+            {/* Background Layer (Animated) */}
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={activeCategory.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.7 }}
+                    className="categorized-products-bg"
+                    style={{
+                        backgroundImage: activeCategory.bgImageUrl
+                            ? `url(${activeCategory.bgImageUrl})`
+                            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    }}
+                />
+            </AnimatePresence>
 
-  if (categories.length === 0) {
-    return null;
-  }
+            {/* Overlay */}
+            <div className="categorized-products-overlay" />
 
-  const activeCategory = categories[activeIndex];
-  const MAX_VISIBLE_TABS = 6;
-  const visibleCategories = showAllCategories ? categories : categories.slice(0, MAX_VISIBLE_TABS);
-  const hasMoreCategories = categories.length > MAX_VISIBLE_TABS;
+            {/* Content Layer */}
+            <div className="categorized-products-content">
+                {/* Tabs with Scroll */}
+                <div className="categorized-products-tabs-wrapper">
+                    {categories.length > 4 && (
+                        <button
+                            onClick={() => scrollTabs('left')}
+                            className="categorized-tabs-scroll-btn categorized-tabs-scroll-left"
+                            aria-label="Scroll tabs left"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+                    )}
 
-  return (
-    <div className="categorized-products-showcase">
-      {/* Background Layer (Animated) */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeCategory.id}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.7 }}
-          className="categorized-products-bg"
-          style={{
-            backgroundImage: activeCategory.bgImageUrl 
-              ? `url(${activeCategory.bgImageUrl})` 
-              : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          }}
-        />
-      </AnimatePresence>
+                    <div
+                        className="categorized-products-tabs"
+                        ref={tabsScrollRef}
+                    >
+                        {visibleCategories.map((cat, idx) => (
+                            <button
+                                key={cat.id}
+                                onClick={() => setActiveIndex(idx)}
+                                className={`categorized-products-tab ${idx === activeIndex ? 'active' : ''}`}
+                            >
+                                {cat.name}
+                            </button>
+                        ))}
 
-      {/* Overlay */}
-      <div className="categorized-products-overlay" />
+                        {hasMoreCategories && !showAllCategories && (
+                            <button
+                                onClick={() => setShowAllCategories(true)}
+                                className="categorized-products-tab categorized-more-tab"
+                                title="Show all categories"
+                            >
+                                <MoreHorizontal size={20} />
+                                <span className="ml-1">More</span>
+                            </button>
+                        )}
+                    </div>
 
-      {/* Content Layer */}
-      <div className="categorized-products-content">
-        {/* Tabs with Scroll */}
-        <div className="categorized-products-tabs-wrapper">
-          {categories.length > 4 && (
-            <button 
-              onClick={() => scrollTabs('left')} 
-              className="categorized-tabs-scroll-btn categorized-tabs-scroll-left"
-              aria-label="Scroll tabs left"
-            >
-              <ChevronLeft size={20} />
-            </button>
-          )}
-          
-          <div className="categorized-products-tabs" ref={tabsScrollRef}>
-            {visibleCategories.map((cat, idx) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveIndex(idx)}
-                className={`categorized-products-tab ${idx === activeIndex ? 'active' : ''}`}
-              >
-                {cat.name}
-              </button>
-            ))}
-            
-            {hasMoreCategories && !showAllCategories && (
-              <button
-                onClick={() => setShowAllCategories(true)}
-                className="categorized-products-tab categorized-more-tab"
-                title="Show all categories"
-              >
-                <MoreHorizontal size={20} />
-                <span className="ml-1">More</span>
-              </button>
-            )}
-          </div>
-          
-          {categories.length > 4 && (
-            <button 
-              onClick={() => scrollTabs('right')} 
-              className="categorized-tabs-scroll-btn categorized-tabs-scroll-right"
-              aria-label="Scroll tabs right"
-            >
-              <ChevronRight size={20} />
-            </button>
-          )}
-        </div>
-
-        {/* Title & Description */}
-        <div className="categorized-products-header">
-          <h2 className="categorized-products-title">{activeCategory.name}</h2>
-          <p className="categorized-products-subtitle">{activeCategory.description}</p>
-        </div>
-
-        {/* Animated Product List */}
-        <div className="categorized-products-list-wrapper">
-          {/* Scroll Arrows */}
-          {activeCategory.products.length >= 5 && (
-            <ScrollArrows 
-              onScrollLeft={() => scroll('left')}
-              onScrollRight={() => scroll('right')}
-            />
-          )}
-
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeCategory.id + '-products'}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.45 }}
-              ref={scrollRef}
-              className="categorized-products-list"
-            >
-              {activeCategory.products.map((product) => (
-                <div key={product._id} className="categorized-product-card">
-                  <ProductCard
-                    product={product}
-                    showBadges={false}
-                    showCategory={false}
-                    showQuickView={false}
-                    onClick={() => handleProductClick(product)}
-                  />
+                    {categories.length > 4 && (
+                        <button
+                            onClick={() => scrollTabs('right')}
+                            className="categorized-tabs-scroll-btn categorized-tabs-scroll-right"
+                            aria-label="Scroll tabs right"
+                        >
+                            <ChevronRight size={20} />
+                        </button>
+                    )}
                 </div>
-              ))}
-            </motion.div>
-          </AnimatePresence>
-        </div>
 
-        {/* View More Button */}
-        <div className="categorized-products-footer">
-          <button
-            onClick={handleViewAll}
-            className="categorized-view-more-btn"
-          >
-            View All <ArrowRight className="ml-2 h-4 w-4 inline" />
-          </button>
+                {/* Title & Description */}
+                <div className="categorized-products-header">
+                    <h2 className="categorized-products-title">
+                        {activeCategory.name}
+                    </h2>
+                    <p className="categorized-products-subtitle">
+                        {activeCategory.description}
+                    </p>
+                </div>
+
+                {/* Animated Product List */}
+                <div className="categorized-products-list-wrapper">
+                    {/* Scroll Arrows */}
+                    {activeCategory.products.length >= 5 && (
+                        <ScrollArrows
+                            onScrollLeft={() => scroll('left')}
+                            onScrollRight={() => scroll('right')}
+                        />
+                    )}
+
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeCategory.id + '-products'}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.45 }}
+                            ref={scrollRef}
+                            className="categorized-products-list"
+                        >
+                            {activeCategory.products.map((product) => (
+                                <div
+                                    key={product._id}
+                                    className="categorized-product-card"
+                                >
+                                    <ProductCard
+                                        product={product}
+                                        showBadges={false}
+                                        showCategory={false}
+                                        showQuickView={false}
+                                        onClick={() =>
+                                            handleProductClick(product)
+                                        }
+                                    />
+                                </div>
+                            ))}
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
+
+                {/* View More Button */}
+                <div className="categorized-products-footer">
+                    <button
+                        onClick={handleViewAll}
+                        className="categorized-view-more-btn"
+                    >
+                        View All <ArrowRight className="ml-2 h-4 w-4 inline" />
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default CategorizedProductsSection;

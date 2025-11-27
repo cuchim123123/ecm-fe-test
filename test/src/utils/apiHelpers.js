@@ -5,22 +5,24 @@
  * @throws {Error} If response is not ok
  */
 export const handleResponse = async (response) => {
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ 
-      message: 'An error occurred' 
-    }));
-    throw new Error(error.message || `HTTP error! status: ${response.status}`);
-  }
-  const json = await response.json();
-  
-  // Handle different response formats
-  if (json.success && json.data !== undefined) {
-    return json.data;
-  }
-  
-  // Return full response to preserve pagination metadata
-  // Don't extract json.products - let the caller handle the structure
-  return json;
+    if (!response.ok) {
+        const error = await response.json().catch(() => ({
+            message: 'An error occurred',
+        }));
+        throw new Error(
+            error.message || `HTTP error! status: ${response.status}`,
+        );
+    }
+    const json = await response.json();
+
+    // Handle different response formats
+    if (json.success && json.data !== undefined) {
+        return json.data;
+    }
+
+    // Return full response to preserve pagination metadata
+    // Don't extract json.products - let the caller handle the structure
+    return json;
 };
 
 /**
@@ -29,13 +31,13 @@ export const handleResponse = async (response) => {
  * @returns {string} Query string
  */
 export const buildQueryString = (params) => {
-  const query = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      query.append(key, value);
-    }
-  });
-  return query.toString();
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+            query.append(key, value);
+        }
+    });
+    return query.toString();
 };
 
 /**
@@ -45,8 +47,8 @@ export const buildQueryString = (params) => {
  * @returns {string} Full URL with query string
  */
 export const createUrl = (baseUrl, params = {}) => {
-  const queryString = buildQueryString(params);
-  return `${baseUrl}${queryString ? `?${queryString}` : ''}`;
+    const queryString = buildQueryString(params);
+    return `${baseUrl}${queryString ? `?${queryString}` : ''}`;
 };
 
 /**
@@ -56,9 +58,9 @@ export const createUrl = (baseUrl, params = {}) => {
  * @returns {Promise<Response>}
  */
 export const fetchWithTimeout = async (fetchPromise, timeout = 30000) => {
-  const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error('Request timeout')), timeout);
-  });
-  
-  return Promise.race([fetchPromise, timeoutPromise]);
+    const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), timeout);
+    });
+
+    return Promise.race([fetchPromise, timeoutPromise]);
 };

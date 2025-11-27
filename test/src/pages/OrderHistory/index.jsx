@@ -7,65 +7,66 @@ import OrderHistoryFilters from './components/OrderHistoryFilters';
 import './OrderHistory.css';
 
 const OrderHistory = () => {
-  const {
-    orders,
-    loading,
-    error,
-    filters,
-    handleFilterChange,
-    handleSearch,
-    refetch
-  } = useOrderHistory();
+    const {
+        orders,
+        loading,
+        error,
+        filters,
+        handleFilterChange,
+        handleSearch,
+        refetch,
+    } = useOrderHistory();
 
-  if (loading) {
+    if (loading) {
+        return (
+            <div className="order-history-loading">
+                <LoadingSpinner />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="order-history-error">
+                <ErrorMessage
+                    title="Failed to load orders"
+                    message={error}
+                    onRetry={refetch}
+                />
+            </div>
+        );
+    }
+
     return (
-      <div className="order-history-loading">
-        <LoadingSpinner />
-      </div>
-    );
-  }
+        <div className="order-history-page">
+            <div className="order-history-container">
+                <div className="order-history-header">
+                    <h1>Order History</h1>
+                    <p className="order-count">
+                        {orders.length}{' '}
+                        {orders.length === 1 ? 'order' : 'orders'}
+                    </p>
+                </div>
 
-  if (error) {
-    return (
-      <div className="order-history-error">
-        <ErrorMessage
-          title="Failed to load orders"
-          message={error}
-          onRetry={refetch}
-        />
-      </div>
-    );
-  }
+                <OrderHistoryFilters
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                    onSearch={handleSearch}
+                />
 
-  return (
-    <div className="order-history-page">
-      <div className="order-history-container">
-        <div className="order-history-header">
-          <h1>Order History</h1>
-          <p className="order-count">
-            {orders.length} {orders.length === 1 ? 'order' : 'orders'}
-          </p>
+                {orders.length === 0 ? (
+                    <div className="no-orders">
+                        <p>No orders found</p>
+                        <a href="/products" className="shop-now-link">
+                            Start Shopping
+                        </a>
+                    </div>
+                ) : (
+                    <OrderHistoryList orders={orders} />
+                )}
+            </div>
         </div>
-
-        <OrderHistoryFilters
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onSearch={handleSearch}
-        />
-
-        {orders.length === 0 ? (
-          <div className="no-orders">
-            <p>No orders found</p>
-            <a href="/products" className="shop-now-link">
-              Start Shopping
-            </a>
-          </div>
-        ) : (
-          <OrderHistoryList orders={orders} />
-        )}
-      </div>
-    </div>
-  );
+    );
 };
 
 export default OrderHistory;

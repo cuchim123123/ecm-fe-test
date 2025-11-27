@@ -23,13 +23,13 @@ import * as addressesService from './addresses.service';
 import * as paymentsService from './payments.service';
 
 export default {
-  products: productsService,
-  users: usersService,
-  orders: ordersService,
-  cart: cartService,
-  reviews: reviewsService,
-  discountCodes: discountCodesService,
-  categories: categoriesService,
-  addresses: addressesService,
-  payments: paymentsService,
+    products: productsService,
+    users: usersService,
+    orders: ordersService,
+    cart: cartService,
+    reviews: reviewsService,
+    discountCodes: discountCodesService,
+    categories: categoriesService,
+    addresses: addressesService,
+    payments: paymentsService,
 };

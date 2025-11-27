@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -115,32 +115,33 @@ a.active hr {
 }
 
 @layer base {
-  * {
-    @apply border-border;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    * {
+        @apply border-border;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
-  html, body {
-    overflow-x: hidden;
-    width: 100%;
+    html,
+    body {
+        overflow-x: hidden;
+        width: 100%;
     }
-  body {
-    @apply bg-background text-foreground;
-    position: relative;
-    min-height: 100vh;
+    body {
+        @apply bg-background text-foreground;
+        position: relative;
+        min-height: 100vh;
     }
 }
 
 @keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .animate-shimmer {
-  animation: shimmer 1s infinite;
+    animation: shimmer 1s infinite;
 }

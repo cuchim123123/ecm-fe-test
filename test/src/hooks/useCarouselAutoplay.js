@@ -1,26 +1,26 @@
 import { useEffect, useRef } from 'react';
 
 export const useCarouselAutoplay = (interval = 5000) => {
-  const autoPlayRef = useRef(null);
+    const autoPlayRef = useRef(null);
 
-  const start = (callback) => {
-    stop();
-    autoPlayRef.current = setInterval(callback, interval);
-  };
+    const start = (callback) => {
+        stop();
+        autoPlayRef.current = setInterval(callback, interval);
+    };
 
-  const stop = () => {
-    if (autoPlayRef.current) {
-      clearInterval(autoPlayRef.current);
-    }
-  };
+    const stop = () => {
+        if (autoPlayRef.current) {
+            clearInterval(autoPlayRef.current);
+        }
+    };
 
-  const reset = (callback) => {
-    start(callback);
-  };
+    const reset = (callback) => {
+        start(callback);
+    };
 
-  useEffect(() => {
-    return () => stop();
-  }, []);
+    useEffect(() => {
+        return () => stop();
+    }, []);
 
-  return { start, stop, reset };
+    return { start, stop, reset };
 };

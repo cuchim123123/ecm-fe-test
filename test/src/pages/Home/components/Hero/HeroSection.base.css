@@ -28,7 +28,10 @@
     width: 70%;
     height: 100%;
     font-size: 15px;
-    transition: left 0.5s, opacity 0.5s, width 0.5s;
+    transition:
+        left 0.5s,
+        opacity 0.5s,
+        width 0.5s;
     will-change: transform, filter, opacity;
     overflow: visible;
 }
@@ -79,7 +82,9 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    transition: opacity 0.5s 0.3s, visibility 0s 0.3s;
+    transition:
+        opacity 0.5s 0.3s,
+        visibility 0s 0.3s;
     will-change: opacity;
 }
 
@@ -149,7 +154,10 @@
     gap: 8px;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s 0.5s, visibility 0s 0.5s, transform 0.3s ease;
+    transition:
+        opacity 0.3s 0.5s,
+        visibility 0s 0.5s,
+        transform 0.3s ease;
 }
 
 /* Only show button on active slide with delay */
@@ -213,7 +221,11 @@
     width: 600px;
     height: 400px;
     content: '';
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.1) 100%);
+    background: radial-gradient(
+        circle,
+        rgba(59, 130, 246, 0.15) 0%,
+        rgba(147, 51, 234, 0.1) 100%
+    );
     position: absolute;
     z-index: -1;
     border-radius: 50%;

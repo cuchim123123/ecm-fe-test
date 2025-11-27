@@ -6,15 +6,15 @@ import example5 from './example5.png';
 import authBackground from './images/auth/background.webp';
 
 export const productImages = {
-  plush1: example,
-  plush2: example2,
-  plush3: example3,
-  plush4: example4,
-  plush5: example5,
+    plush1: example,
+    plush2: example2,
+    plush3: example3,
+    plush4: example4,
+    plush5: example5,
 };
 
 export const authImages = {
-  background: authBackground,
+    background: authBackground,
 };
 
 export { example, example2, example3, example4, example5, authBackground };

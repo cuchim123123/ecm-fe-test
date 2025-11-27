@@ -11,7 +11,7 @@ import * as usersService from '@/services/users.service';
  * @param {boolean} options.autoFetch - Auto-fetch on mount (default: true)
  * @param {Array} options.dependencies - Additional dependencies for refetch
  * @returns {Object} User data and CRUD operations
- * 
+ *
  * Supported params:
  * - role: 'customer' or 'admin'
  * - isVerified: 'true' or 'false'
@@ -20,199 +20,204 @@ import * as usersService from '@/services/users.service';
  * - page, limit: Pagination
  */
 export const useUsers = (options = {}) => {
-  const {
-    userId = null,
-    params = {},
-    searchQuery = '', // Deprecated, use params.search
-    autoFetch = true,
-    dependencies = []
-  } = options;
+    const {
+        userId = null,
+        params = {},
+        searchQuery = '', // Deprecated, use params.search
+        autoFetch = true,
+        dependencies = [],
+    } = options;
 
-  const [users, setUsers] = useState([]);
-  const [user, setUser] = useState(null);
-  const [stats, setStats] = useState({
-    totalUsers: 0,
-    verifiedUsers: 0,
-    totalLoyaltyPoints: 0,
-    adminUsers: 0
-  });
-  const [loading, setLoading] = useState(autoFetch);
-  const [error, setError] = useState(null);
+    const [users, setUsers] = useState([]);
+    const [user, setUser] = useState(null);
+    const [stats, setStats] = useState({
+        totalUsers: 0,
+        verifiedUsers: 0,
+        totalLoyaltyPoints: 0,
+        adminUsers: 0,
+    });
+    const [loading, setLoading] = useState(autoFetch);
+    const [error, setError] = useState(null);
 
-  // Stringify params and dependencies for stable comparison
-  const paramsKey = JSON.stringify(params);
-  const depsKey = JSON.stringify(dependencies);
+    // Stringify params and dependencies for stable comparison
+    const paramsKey = JSON.stringify(params);
+    const depsKey = JSON.stringify(dependencies);
 
-  // Fetch single user
-  const fetchUser = useCallback(async (id) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const userData = await usersService.getUserById(id);
-      setUser(userData);
-      return userData;
-    } catch (err) {
-      setError(err.message);
-      console.error('Error fetching user:', err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Fetch multiple users (list)
-  const fetchUsers = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      /**
-       * PAGINATION CONFIGURATION:
-       * - Users per page: 50 (consistent with admin products)
-       * - Efficient for admin management without overwhelming UI
-       */
-      const ADMIN_USERS_PER_PAGE = 50;
-      
-      // Merge params with search query (for backwards compatibility)
-      const queryParams = {
-        ...params,
-        search: params.search || searchQuery || undefined,
-        limit: params.limit || ADMIN_USERS_PER_PAGE,
-      }
-      
-      // Remove undefined/empty values
-      Object.keys(queryParams).forEach(key => {
-        if (queryParams[key] === undefined || queryParams[key] === '') {
-          delete queryParams[key]
+    // Fetch single user
+    const fetchUser = useCallback(async (id) => {
+        try {
+            setLoading(true);
+            setError(null);
+            const userData = await usersService.getUserById(id);
+            setUser(userData);
+            return userData;
+        } catch (err) {
+            setError(err.message);
+            console.error('Error fetching user:', err);
+            throw err;
+        } finally {
+            setLoading(false);
         }
-      })
-      
-      const data = await usersService.getUsers(queryParams);
-      
-      // Handle different response formats
-      const usersArray = Array.isArray(data) ? data : (data.users || data.data || []);
-      
-      // Calculate stats
-      const calculatedStats = {
-        totalUsers: usersArray.length,
-        verifiedUsers: usersArray.filter(u => u.isVerified).length,
-        totalLoyaltyPoints: usersArray.reduce((sum, u) => sum + (u.loyaltyPoints || 0), 0),
-        adminUsers: usersArray.filter(u => u.role === 'admin').length,
-      };
-      
-      setUsers(usersArray);
-      setStats(calculatedStats);
-      return usersArray;
-    } catch (err) {
-      setError(err.message);
-      console.error('Error fetching users:', err);
-      setUsers([]);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paramsKey, searchQuery]);
+    }, []);
 
-  // Auto-fetch on mount
-  useEffect(() => {
-    if (!autoFetch) return;
+    // Fetch multiple users (list)
+    const fetchUsers = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError(null);
 
-    if (userId) {
-      // Fetch single user
-      fetchUser(userId);
-    } else {
-      // Fetch users list with debounce
-      const delayTimer = setTimeout(() => {
-        fetchUsers();
-      }, 500);
-      return () => clearTimeout(delayTimer);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, paramsKey, searchQuery, autoFetch, depsKey]);
+            /**
+             * PAGINATION CONFIGURATION:
+             * - Users per page: 50 (consistent with admin products)
+             * - Efficient for admin management without overwhelming UI
+             */
+            const ADMIN_USERS_PER_PAGE = 50;
 
-  // Create user
-  const createUser = async (userData) => {
-    try {
-      const newUser = await usersService.createUser(userData);
-      await fetchUsers(); // Refresh list
-      toast.success('User created successfully');
-      return newUser;
-    } catch (error) {
-      console.error('Error creating user:', error);
-      toast.error('Failed to create user');
-      throw error;
-    }
-  };
+            // Merge params with search query (for backwards compatibility)
+            const queryParams = {
+                ...params,
+                search: params.search || searchQuery || undefined,
+                limit: params.limit || ADMIN_USERS_PER_PAGE,
+            };
 
-  // Update user
-  const updateUser = async (id, userData) => {
-    try {
-      const updatedUser = await usersService.updateUser(id, userData);
-      if (userId) {
-        setUser(updatedUser);
-      } else {
-        await fetchUsers(); // Refresh list
-      }
-      toast.success('User updated successfully');
-      return updatedUser;
-    } catch (error) {
-      console.error('Error updating user:', error);
-      toast.error('Failed to update user');
-      throw error;
-    }
-  };
+            // Remove undefined/empty values
+            Object.keys(queryParams).forEach((key) => {
+                if (queryParams[key] === undefined || queryParams[key] === '') {
+                    delete queryParams[key];
+                }
+            });
 
-  // Delete user
-  const deleteUser = async (id) => {
-    try {
-      await usersService.deleteUser(id);
-      await fetchUsers(); // Refresh list
-      toast.success('User deleted successfully');
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      toast.error('Failed to delete user');
-      throw error;
-    }
-  };
+            const data = await usersService.getUsers(queryParams);
 
-  // Bulk delete users
-  const bulkDeleteUsers = async (userIds) => {
-    try {
-      await Promise.all(userIds.map(id => usersService.deleteUser(id)));
-      await fetchUsers(); // Refresh list
-      toast.success(`${userIds.length} user(s) deleted successfully`);
-    } catch (error) {
-      console.error('Error deleting users:', error);
-      toast.error('Failed to delete users');
-      throw error;
-    }
-  };
+            // Handle different response formats
+            const usersArray = Array.isArray(data)
+                ? data
+                : data.users || data.data || [];
 
-  return {
-    // Single user mode
-    user,
-    
-    // Multiple users mode
-    users,
-    stats,
-    
-    // Common
-    loading,
-    error,
-    
-    // Operations
-    createUser,
-    updateUser,
-    deleteUser,
-    bulkDeleteUsers,
-    
-    // Refresh functions
-    refreshUser: () => userId ? fetchUser(userId) : null,
-    refreshUsers: fetchUsers,
-    fetchUser,
-    fetchUsers,
-  };
+            // Calculate stats
+            const calculatedStats = {
+                totalUsers: usersArray.length,
+                verifiedUsers: usersArray.filter((u) => u.isVerified).length,
+                totalLoyaltyPoints: usersArray.reduce(
+                    (sum, u) => sum + (u.loyaltyPoints || 0),
+                    0,
+                ),
+                adminUsers: usersArray.filter((u) => u.role === 'admin').length,
+            };
+
+            setUsers(usersArray);
+            setStats(calculatedStats);
+            return usersArray;
+        } catch (err) {
+            setError(err.message);
+            console.error('Error fetching users:', err);
+            setUsers([]);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [paramsKey, searchQuery]);
+
+    // Auto-fetch on mount
+    useEffect(() => {
+        if (!autoFetch) return;
+
+        if (userId) {
+            // Fetch single user
+            fetchUser(userId);
+        } else {
+            // Fetch users list with debounce
+            const delayTimer = setTimeout(() => {
+                fetchUsers();
+            }, 500);
+            return () => clearTimeout(delayTimer);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [userId, paramsKey, searchQuery, autoFetch, depsKey]);
+
+    // Create user
+    const createUser = async (userData) => {
+        try {
+            const newUser = await usersService.createUser(userData);
+            await fetchUsers(); // Refresh list
+            toast.success('User created successfully');
+            return newUser;
+        } catch (error) {
+            console.error('Error creating user:', error);
+            toast.error('Failed to create user');
+            throw error;
+        }
+    };
+
+    // Update user
+    const updateUser = async (id, userData) => {
+        try {
+            const updatedUser = await usersService.updateUser(id, userData);
+            if (userId) {
+                setUser(updatedUser);
+            } else {
+                await fetchUsers(); // Refresh list
+            }
+            toast.success('User updated successfully');
+            return updatedUser;
+        } catch (error) {
+            console.error('Error updating user:', error);
+            toast.error('Failed to update user');
+            throw error;
+        }
+    };
+
+    // Delete user
+    const deleteUser = async (id) => {
+        try {
+            await usersService.deleteUser(id);
+            await fetchUsers(); // Refresh list
+            toast.success('User deleted successfully');
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            toast.error('Failed to delete user');
+            throw error;
+        }
+    };
+
+    // Bulk delete users
+    const bulkDeleteUsers = async (userIds) => {
+        try {
+            await Promise.all(userIds.map((id) => usersService.deleteUser(id)));
+            await fetchUsers(); // Refresh list
+            toast.success(`${userIds.length} user(s) deleted successfully`);
+        } catch (error) {
+            console.error('Error deleting users:', error);
+            toast.error('Failed to delete users');
+            throw error;
+        }
+    };
+
+    return {
+        // Single user mode
+        user,
+
+        // Multiple users mode
+        users,
+        stats,
+
+        // Common
+        loading,
+        error,
+
+        // Operations
+        createUser,
+        updateUser,
+        deleteUser,
+        bulkDeleteUsers,
+
+        // Refresh functions
+        refreshUser: () => (userId ? fetchUser(userId) : null),
+        refreshUsers: fetchUsers,
+        fetchUser,
+        fetchUsers,
+    };
 };
 
 /**
@@ -220,7 +225,7 @@ export const useUsers = (options = {}) => {
  * @param {string} userId - User ID to fetch
  */
 export const useUser = (userId) => {
-  return useUsers({ userId, autoFetch: !!userId });
+    return useUsers({ userId, autoFetch: !!userId });
 };
 
 /**
@@ -228,5 +233,5 @@ export const useUser = (userId) => {
  * @param {string} searchQuery - Search query
  */
 export const useUsersList = (searchQuery = '') => {
-  return useUsers({ searchQuery, autoFetch: true });
+    return useUsers({ searchQuery, autoFetch: true });
 };

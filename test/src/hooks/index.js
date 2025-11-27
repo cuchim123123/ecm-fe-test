@@ -4,14 +4,22 @@ export { useCarouselNavigation } from './useCarouselNavigation';
 export { useResponsive } from './useResponsive';
 
 // Product hooks - Universal and flexible
-export { useProducts, useCategorizedProducts, useProductDetail } from './useProducts';
+export {
+    useProducts,
+    useCategorizedProducts,
+    useProductDetail,
+} from './useProducts';
 
 // Review hooks - Manage product reviews and user reviews
 export { useReviews } from './useReviews';
 export { useReviewPolling } from './useReviewPolling';
 
 // Discount code hooks - Validate and manage discount codes
-export { useDiscountCode, useDiscountCodes, useDiscountCodeDetails } from './useDiscountCode';
+export {
+    useDiscountCode,
+    useDiscountCodes,
+    useDiscountCodeDetails,
+} from './useDiscountCode';
 
 // Cart hooks - Add products to cart, manage cart state
 export { useAddToCart } from './useAddToCart';

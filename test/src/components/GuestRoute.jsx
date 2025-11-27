@@ -10,23 +10,23 @@ import { LoadingSpinner } from '@/components/common';
  * @returns {React.ReactNode}
  */
 const GuestRoute = ({ children }) => {
-  const { user, loading } = useAuth();
+    const { user, loading } = useAuth();
 
-  // Show loading spinner while checking authentication
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
+    // Show loading spinner while checking authentication
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                <LoadingSpinner size="lg" />
+            </div>
+        );
+    }
 
-  // Redirect to home if already authenticated (silently, no toast)
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
+    // Redirect to home if already authenticated (silently, no toast)
+    if (user) {
+        return <Navigate to="/" replace />;
+    }
 
-  return children;
+    return children;
 };
 
 export default GuestRoute;

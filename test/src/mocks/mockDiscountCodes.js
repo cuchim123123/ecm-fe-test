@@ -13,155 +13,155 @@
 // Import mock users to get admin ID
 import { mockUsers } from './mockUsers';
 
-const adminUser = mockUsers.find(u => u.role === 'admin');
+const adminUser = mockUsers.find((u) => u.role === 'admin');
 
 export const MOCK_DISCOUNT_CODES = [
-  // Active discount codes with available uses
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d01',
-    code: 'SAVE5',
-    value: '50000', // 50,000 VND
-    usageLimit: 10,
-    usedCount: 3,
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-10-01T10:00:00Z').toISOString(),
-  },
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d02',
-    code: 'NEW10',
-    value: '100000', // 100,000 VND
-    usageLimit: 5,
-    usedCount: 2,
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-10-15T14:30:00Z').toISOString(),
-  },
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d03',
-    code: 'VIP20',
-    value: '200000', // 200,000 VND
-    usageLimit: 3,
-    usedCount: 0,
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-11-01T09:00:00Z').toISOString(),
-  },
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d04',
-    code: 'PROMO',
-    value: '75000', // 75,000 VND
-    usageLimit: 8,
-    usedCount: 5,
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-09-20T11:15:00Z').toISOString(),
-  },
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d05',
-    code: 'DEAL1',
-    value: '150000', // 150,000 VND
-    usageLimit: 6,
-    usedCount: 1,
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-11-10T16:20:00Z').toISOString(),
-  },
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d06',
-    code: 'FIRST',
-    value: '50000', // 50,000 VND - First purchase
-    usageLimit: 10,
-    usedCount: 7,
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-08-15T08:00:00Z').toISOString(),
-  },
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d07',
-    code: 'MEGA5',
-    value: '500000', // 500,000 VND - Big discount
-    usageLimit: 2,
-    usedCount: 0,
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-11-12T10:30:00Z').toISOString(),
-  },
+    // Active discount codes with available uses
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d01',
+        code: 'SAVE5',
+        value: '50000', // 50,000 VND
+        usageLimit: 10,
+        usedCount: 3,
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-10-01T10:00:00Z').toISOString(),
+    },
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d02',
+        code: 'NEW10',
+        value: '100000', // 100,000 VND
+        usageLimit: 5,
+        usedCount: 2,
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-10-15T14:30:00Z').toISOString(),
+    },
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d03',
+        code: 'VIP20',
+        value: '200000', // 200,000 VND
+        usageLimit: 3,
+        usedCount: 0,
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-11-01T09:00:00Z').toISOString(),
+    },
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d04',
+        code: 'PROMO',
+        value: '75000', // 75,000 VND
+        usageLimit: 8,
+        usedCount: 5,
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-09-20T11:15:00Z').toISOString(),
+    },
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d05',
+        code: 'DEAL1',
+        value: '150000', // 150,000 VND
+        usageLimit: 6,
+        usedCount: 1,
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-11-10T16:20:00Z').toISOString(),
+    },
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d06',
+        code: 'FIRST',
+        value: '50000', // 50,000 VND - First purchase
+        usageLimit: 10,
+        usedCount: 7,
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-08-15T08:00:00Z').toISOString(),
+    },
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d07',
+        code: 'MEGA5',
+        value: '500000', // 500,000 VND - Big discount
+        usageLimit: 2,
+        usedCount: 0,
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-11-12T10:30:00Z').toISOString(),
+    },
 
-  // Nearly exhausted codes
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d08',
-    code: 'LAST1',
-    value: '100000', // 100,000 VND
-    usageLimit: 10,
-    usedCount: 9, // Only 1 use left
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-09-01T12:00:00Z').toISOString(),
-  },
+    // Nearly exhausted codes
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d08',
+        code: 'LAST1',
+        value: '100000', // 100,000 VND
+        usageLimit: 10,
+        usedCount: 9, // Only 1 use left
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-09-01T12:00:00Z').toISOString(),
+    },
 
-  // Fully used codes (for testing validation)
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d09',
-    code: 'USED1',
-    value: '80000', // 80,000 VND
-    usageLimit: 5,
-    usedCount: 5, // Fully used
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-07-10T15:00:00Z').toISOString(),
-  },
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d0a',
-    code: 'SOLD1',
-    value: '60000', // 60,000 VND
-    usageLimit: 3,
-    usedCount: 3, // Fully used
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-06-20T09:30:00Z').toISOString(),
-  },
+    // Fully used codes (for testing validation)
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d09',
+        code: 'USED1',
+        value: '80000', // 80,000 VND
+        usageLimit: 5,
+        usedCount: 5, // Fully used
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-07-10T15:00:00Z').toISOString(),
+    },
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d0a',
+        code: 'SOLD1',
+        value: '60000', // 60,000 VND
+        usageLimit: 3,
+        usedCount: 3, // Fully used
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-06-20T09:30:00Z').toISOString(),
+    },
 
-  // High value codes
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d0b',
-    code: 'MEGA9',
-    value: '999000', // 999,000 VND - Maximum discount
-    usageLimit: 1,
-    usedCount: 0,
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-11-15T14:00:00Z').toISOString(),
-  },
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d0c',
-    code: 'GOLD1',
-    value: '300000', // 300,000 VND
-    usageLimit: 4,
-    usedCount: 1,
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-10-25T11:45:00Z').toISOString(),
-  },
+    // High value codes
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d0b',
+        code: 'MEGA9',
+        value: '999000', // 999,000 VND - Maximum discount
+        usageLimit: 1,
+        usedCount: 0,
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-11-15T14:00:00Z').toISOString(),
+    },
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d0c',
+        code: 'GOLD1',
+        value: '300000', // 300,000 VND
+        usageLimit: 4,
+        usedCount: 1,
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-10-25T11:45:00Z').toISOString(),
+    },
 
-  // Low value codes
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d0d',
-    code: 'MINI1',
-    value: '25000', // 25,000 VND
-    usageLimit: 10,
-    usedCount: 4,
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-11-05T10:00:00Z').toISOString(),
-  },
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d0e',
-    code: 'TINY1',
-    value: '10000', // 10,000 VND
-    usageLimit: 10,
-    usedCount: 6,
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-10-10T13:20:00Z').toISOString(),
-  },
+    // Low value codes
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d0d',
+        code: 'MINI1',
+        value: '25000', // 25,000 VND
+        usageLimit: 10,
+        usedCount: 4,
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-11-05T10:00:00Z').toISOString(),
+    },
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d0e',
+        code: 'TINY1',
+        value: '10000', // 10,000 VND
+        usageLimit: 10,
+        usedCount: 6,
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-10-10T13:20:00Z').toISOString(),
+    },
 
-  // Special event codes
-  {
-    _id: '674d1a2b3c4e5f6a7b8c9d0f',
-    code: 'XMAS5',
-    value: '250000', // 250,000 VND - Christmas special
-    usageLimit: 7,
-    usedCount: 2,
-    createdBy: adminUser?._id || 'admin1',
-    createdAt: new Date('2024-11-14T08:30:00Z').toISOString(),
-  },
+    // Special event codes
+    {
+        _id: '674d1a2b3c4e5f6a7b8c9d0f',
+        code: 'XMAS5',
+        value: '250000', // 250,000 VND - Christmas special
+        usageLimit: 7,
+        usedCount: 2,
+        createdBy: adminUser?._id || 'admin1',
+        createdAt: new Date('2024-11-14T08:30:00Z').toISOString(),
+    },
 ];
 
 // Export as mockDiscountCodes for backward compatibility
@@ -173,10 +173,12 @@ export const mockDiscountCodes = MOCK_DISCOUNT_CODES;
  * @returns {Object|null} - Discount code object or null
  */
 export const getDiscountCodeByCode = (code) => {
-  if (!code) return null;
-  return MOCK_DISCOUNT_CODES.find(
-    dc => dc.code.toUpperCase() === code.toUpperCase()
-  ) || null;
+    if (!code) return null;
+    return (
+        MOCK_DISCOUNT_CODES.find(
+            (dc) => dc.code.toUpperCase() === code.toUpperCase(),
+        ) || null
+    );
 };
 
 /**
@@ -185,51 +187,52 @@ export const getDiscountCodeByCode = (code) => {
  * @returns {Object} - Validation result { valid, message, discountCode }
  */
 export const validateDiscountCode = (code) => {
-  if (!code || typeof code !== 'string') {
+    if (!code || typeof code !== 'string') {
+        return {
+            valid: false,
+            message: 'Discount code is required',
+            discountCode: null,
+        };
+    }
+
+    const trimmedCode = code.trim().toUpperCase();
+
+    // Check format (5 alphanumeric characters)
+    if (!/^[A-Z0-9]{5}$/.test(trimmedCode)) {
+        return {
+            valid: false,
+            message:
+                'Invalid discount code format. Code must be 5 alphanumeric characters.',
+            discountCode: null,
+        };
+    }
+
+    // Find discount code
+    const discountCode = getDiscountCodeByCode(trimmedCode);
+
+    if (!discountCode) {
+        return {
+            valid: false,
+            message: 'Discount code not found',
+            discountCode: null,
+        };
+    }
+
+    // Check if code is exhausted
+    if (discountCode.usedCount >= discountCode.usageLimit) {
+        return {
+            valid: false,
+            message: 'This discount code has reached its usage limit',
+            discountCode,
+        };
+    }
+
+    // Code is valid
     return {
-      valid: false,
-      message: 'Discount code is required',
-      discountCode: null,
+        valid: true,
+        message: 'Discount code is valid',
+        discountCode,
     };
-  }
-
-  const trimmedCode = code.trim().toUpperCase();
-
-  // Check format (5 alphanumeric characters)
-  if (!/^[A-Z0-9]{5}$/.test(trimmedCode)) {
-    return {
-      valid: false,
-      message: 'Invalid discount code format. Code must be 5 alphanumeric characters.',
-      discountCode: null,
-    };
-  }
-
-  // Find discount code
-  const discountCode = getDiscountCodeByCode(trimmedCode);
-
-  if (!discountCode) {
-    return {
-      valid: false,
-      message: 'Discount code not found',
-      discountCode: null,
-    };
-  }
-
-  // Check if code is exhausted
-  if (discountCode.usedCount >= discountCode.usageLimit) {
-    return {
-      valid: false,
-      message: 'This discount code has reached its usage limit',
-      discountCode,
-    };
-  }
-
-  // Code is valid
-  return {
-    valid: true,
-    message: 'Discount code is valid',
-    discountCode,
-  };
 };
 
 /**
@@ -239,14 +242,14 @@ export const validateDiscountCode = (code) => {
  * @returns {number} - Discount amount in VND
  */
 export const calculateDiscountAmount = (discountCode, orderTotal) => {
-  if (!discountCode || !discountCode.value) return 0;
+    if (!discountCode || !discountCode.value) return 0;
 
-  // Convert Decimal128 string to number
-  const discountValue = parseFloat(discountCode.value);
+    // Convert Decimal128 string to number
+    const discountValue = parseFloat(discountCode.value);
 
-  // For now, treating all values as fixed amount (VND)
-  // In future, you could add a discountType field to support percentage
-  return Math.min(discountValue, orderTotal); // Discount cannot exceed order total
+    // For now, treating all values as fixed amount (VND)
+    // In future, you could add a discountType field to support percentage
+    return Math.min(discountValue, orderTotal); // Discount cannot exceed order total
 };
 
 /**
@@ -254,9 +257,7 @@ export const calculateDiscountAmount = (discountCode, orderTotal) => {
  * @returns {Array} - Array of available discount codes
  */
 export const getAvailableDiscountCodes = () => {
-  return MOCK_DISCOUNT_CODES.filter(
-    dc => dc.usedCount < dc.usageLimit
-  );
+    return MOCK_DISCOUNT_CODES.filter((dc) => dc.usedCount < dc.usageLimit);
 };
 
 /**
@@ -265,7 +266,7 @@ export const getAvailableDiscountCodes = () => {
  * @returns {Array} - Array of discount codes created by admin
  */
 export const getDiscountCodesByAdmin = (adminId) => {
-  return MOCK_DISCOUNT_CODES.filter(dc => dc.createdBy === adminId);
+    return MOCK_DISCOUNT_CODES.filter((dc) => dc.createdBy === adminId);
 };
 
 /**
@@ -274,21 +275,22 @@ export const getDiscountCodesByAdmin = (adminId) => {
  * @returns {Object} - Stats object
  */
 export const getDiscountCodeStats = (codeId) => {
-  const discountCode = MOCK_DISCOUNT_CODES.find(dc => dc._id === codeId);
-  
-  if (!discountCode) return null;
+    const discountCode = MOCK_DISCOUNT_CODES.find((dc) => dc._id === codeId);
 
-  const remainingUses = discountCode.usageLimit - discountCode.usedCount;
-  const usagePercentage = (discountCode.usedCount / discountCode.usageLimit) * 100;
+    if (!discountCode) return null;
 
-  return {
-    ...discountCode,
-    remainingUses,
-    usagePercentage: Math.round(usagePercentage),
-    isActive: remainingUses > 0,
-    isNearlyExhausted: remainingUses <= 1 && remainingUses > 0,
-    isExhausted: remainingUses <= 0,
-  };
+    const remainingUses = discountCode.usageLimit - discountCode.usedCount;
+    const usagePercentage =
+        (discountCode.usedCount / discountCode.usageLimit) * 100;
+
+    return {
+        ...discountCode,
+        remainingUses,
+        usagePercentage: Math.round(usagePercentage),
+        isActive: remainingUses > 0,
+        isNearlyExhausted: remainingUses <= 1 && remainingUses > 0,
+        isExhausted: remainingUses <= 0,
+    };
 };
 
 /**
@@ -297,9 +299,9 @@ export const getDiscountCodeStats = (codeId) => {
  * @returns {string} - Formatted string
  */
 export const formatDiscountValue = (value) => {
-  const amount = parseFloat(value);
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-  }).format(amount);
+    const amount = parseFloat(value);
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+    }).format(amount);
 };

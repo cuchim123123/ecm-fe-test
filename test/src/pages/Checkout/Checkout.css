@@ -1,95 +1,95 @@
 /* Checkout Container */
 .checkout-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  min-height: 100vh;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: 100vh;
 }
 
 .checkout-header {
-  margin-bottom: 2rem;
+    margin-bottom: 2rem;
 }
 
 .back-button {
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 
 .checkout-title {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #1a1a1a;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #1a1a1a;
 }
 
 .checkout-content {
-  display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
 }
 
 .checkout-forms {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
 /* Loading & Error States */
 .checkout-loading,
 .checkout-error,
 .checkout-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 50vh;
-  gap: 1rem;
-  text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    gap: 1rem;
+    text-align: center;
 }
 
 .checkout-empty h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
 }
 
 .checkout-empty p {
-  color: #666;
-  margin-bottom: 1rem;
+    color: #666;
+    margin-bottom: 1rem;
 }
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .checkout-content {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
+    .checkout-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
 
-  .checkout-summary {
-    order: 2; /* Show summary at bottom on mobile */
-    position: static;
-  }
+    .checkout-summary {
+        order: 2; /* Show summary at bottom on mobile */
+        position: static;
+    }
 }
 
 @media (max-width: 768px) {
-  .checkout-container {
-    padding: 0.75rem;
-  }
+    .checkout-container {
+        padding: 0.75rem;
+    }
 
-  .checkout-title {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
+    .checkout-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
 
-  .checkout-content {
-    gap: 1rem;
-  }
+    .checkout-content {
+        gap: 1rem;
+    }
 }
 
 @media (max-width: 480px) {
-  .checkout-container {
-    padding: 0.5rem;
-  }
+    .checkout-container {
+        padding: 0.5rem;
+    }
 
-  .checkout-title {
-    font-size: 1.25rem;
-  }
+    .checkout-title {
+        font-size: 1.25rem;
+    }
 }

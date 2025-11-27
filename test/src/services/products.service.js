@@ -8,19 +8,19 @@ import { getAuthHeaders } from '../utils/authHelpers';
  * @returns {Promise<Array|Object>}
  */
 export const getProducts = async (params = {}) => {
-  const url = createUrl(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}`, params);
-  
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Connection': 'keep-alive',
-      ...getAuthHeaders(),
-    },
-    keepalive: true,
-  });
-  
-  return handleResponse(response);
+    const url = createUrl(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}`, params);
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            Connection: 'keep-alive',
+            ...getAuthHeaders(),
+        },
+        keepalive: true,
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -29,17 +29,17 @@ export const getProducts = async (params = {}) => {
  * @returns {Promise<Object>}
  */
 export const getProductById = async (id) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${id}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Connection': 'keep-alive',
-      ...getAuthHeaders(),
-    },
-    keepalive: true,
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            Connection: 'keep-alive',
+            ...getAuthHeaders(),
+        },
+        keepalive: true,
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -48,16 +48,16 @@ export const getProductById = async (id) => {
  * @returns {Promise<Object>}
  */
 export const createProduct = async (productData) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify(productData),
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify(productData),
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -67,16 +67,16 @@ export const createProduct = async (productData) => {
  * @returns {Promise<Object>}
  */
 export const updateProduct = async (id, productData) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify(productData),
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify(productData),
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -86,16 +86,16 @@ export const updateProduct = async (id, productData) => {
  * @returns {Promise<Object>}
  */
 export const patchProduct = async (id, productData) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify(productData),
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify(productData),
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -104,15 +104,15 @@ export const patchProduct = async (id, productData) => {
  * @returns {Promise<Object>}
  */
 export const deleteProduct = async (id) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -121,16 +121,19 @@ export const deleteProduct = async (id) => {
  * @returns {Promise<Object>}
  */
 export const bulkDeleteProducts = async (ids) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}/bulk-delete`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify({ ids }),
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.PRODUCTS}/bulk-delete`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+            body: JSON.stringify({ ids }),
+        },
+    );
+
+    return handleResponse(response);
 };
 
 /**
@@ -140,15 +143,18 @@ export const bulkDeleteProducts = async (ids) => {
  * @returns {Promise<Object>}
  */
 export const uploadProductImages = async (productId, formData) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${productId}/images`, {
-    method: 'POST',
-    headers: {
-      ...getAuthHeaders(),
-    },
-    body: formData,
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${productId}/images`,
+        {
+            method: 'POST',
+            headers: {
+                ...getAuthHeaders(),
+            },
+            body: formData,
+        },
+    );
+
+    return handleResponse(response);
 };
 
 /**
@@ -158,19 +164,22 @@ export const uploadProductImages = async (productId, formData) => {
  * @returns {Promise<Object>}
  */
 export const deleteProductImage = async (productId, imageUrls) => {
-  // Support both single URL string or array of URLs
-  const removeImages = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
-  
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${productId}/images`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify({ removeImages }),
-  });
-  
-  return handleResponse(response);
+    // Support both single URL string or array of URLs
+    const removeImages = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
+
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${productId}/images`,
+        {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+            body: JSON.stringify({ removeImages }),
+        },
+    );
+
+    return handleResponse(response);
 };
 
 /**
@@ -178,17 +187,17 @@ export const deleteProductImage = async (productId, imageUrls) => {
  * @returns {Promise<Array>}
  */
 export const getProductCategories = async () => {
-  const response = await fetch(`${API_BASE_URL}/categories`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Connection': 'keep-alive',
-      ...getAuthHeaders(),
-    },
-    keepalive: true,
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}/categories`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            Connection: 'keep-alive',
+            ...getAuthHeaders(),
+        },
+        keepalive: true,
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -204,15 +213,18 @@ export const searchProducts = getProducts;
  * @returns {Promise<Object>} - Object with variants array and total count
  */
 export const getProductVariants = async (productId) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${productId}/variants`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.PRODUCTS}/${productId}/variants`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+        },
+    );
+
+    return handleResponse(response);
 };
 
 /**
@@ -221,15 +233,15 @@ export const getProductVariants = async (productId) => {
  * @returns {Promise<Object>}
  */
 export const getVariantById = async (variantId) => {
-  const response = await fetch(`${API_BASE_URL}/variants/${variantId}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}/variants/${variantId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -239,16 +251,16 @@ export const getVariantById = async (variantId) => {
  * @returns {Promise<Object>}
  */
 export const createVariant = async (productId, variantData) => {
-  const response = await fetch(`${API_BASE_URL}/variants/${productId}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify(variantData),
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}/variants/${productId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify(variantData),
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -258,16 +270,16 @@ export const createVariant = async (productId, variantData) => {
  * @returns {Promise<Object>}
  */
 export const updateVariant = async (variantId, variantData) => {
-  const response = await fetch(`${API_BASE_URL}/variants/${variantId}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify(variantData),
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}/variants/${variantId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify(variantData),
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -276,13 +288,13 @@ export const updateVariant = async (variantId, variantData) => {
  * @returns {Promise<Object>}
  */
 export const deleteVariant = async (variantId) => {
-  const response = await fetch(`${API_BASE_URL}/variants/${variantId}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}/variants/${variantId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+    });
+
+    return handleResponse(response);
 };

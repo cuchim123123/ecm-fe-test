@@ -4,14 +4,14 @@
  * @returns {string} Formatted price string
  */
 export const formatPrice = (price) => {
-  if (price == null || isNaN(price)) return '0₫';
-  
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(price);
+    if (price == null || isNaN(price)) return '0₫';
+
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(price);
 };
 
 /**
@@ -20,9 +20,9 @@ export const formatPrice = (price) => {
  * @returns {string} Formatted price string
  */
 export const formatPriceNumber = (price) => {
-  if (price == null || isNaN(price)) return '0';
-  
-  return new Intl.NumberFormat('vi-VN').format(price);
+    if (price == null || isNaN(price)) return '0';
+
+    return new Intl.NumberFormat('vi-VN').format(price);
 };
 
 /**
@@ -31,6 +31,6 @@ export const formatPriceNumber = (price) => {
  * @returns {number} Price as number
  */
 export const parsePrice = (priceStr) => {
-  if (!priceStr) return 0;
-  return Number(priceStr.replace(/[^\d]/g, ''));
+    if (!priceStr) return 0;
+    return Number(priceStr.replace(/[^\d]/g, ''));
 };

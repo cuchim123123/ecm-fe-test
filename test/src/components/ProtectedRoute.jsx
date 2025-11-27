@@ -11,30 +11,30 @@ import { LoadingSpinner } from '@/components/common';
  * @returns {React.ReactNode}
  */
 const ProtectedRoute = ({ children, adminOnly = false }) => {
-  const { user, loading } = useAuth();
-  const location = useLocation();
+    const { user, loading } = useAuth();
+    const location = useLocation();
 
-  // Show loading spinner while checking authentication
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
+    // Show loading spinner while checking authentication
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                <LoadingSpinner size="lg" />
+            </div>
+        );
+    }
 
-  // Redirect to login if not authenticated
-  if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
+    // Redirect to login if not authenticated
+    if (!user) {
+        return <Navigate to="/login" state={{ from: location }} replace />;
+    }
 
-  // Check admin role if required
-  if (adminOnly && user.role !== 'admin') {
-    // Redirect non-admin users to home page
-    return <Navigate to="/" replace />;
-  }
+    // Check admin role if required
+    if (adminOnly && user.role !== 'admin') {
+        // Redirect non-admin users to home page
+        return <Navigate to="/" replace />;
+    }
 
-  return children;
+    return children;
 };
 
 export default ProtectedRoute;

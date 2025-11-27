@@ -23,6 +23,7 @@ src/pages/Home/
 ## ✨ Features
 
 ### 🎠 **Hero Section (Carousel)**
+
 - Full-screen carousel using slider_3 design
 - 6 hero slides with smooth transitions
 - Auto-play every 5 seconds
@@ -30,6 +31,7 @@ src/pages/Home/
 - Responsive design
 
 ### 📦 **Product Categories**
+
 1. **New Arrivals** - Fresh drops with `isNew` flag
 2. **Best Sellers** - Popular items with `isBestSeller` flag
 3. **Móc Khóa (Keychains)** - Filtered by category name
@@ -38,6 +40,7 @@ src/pages/Home/
 6. **Phụ Kiện (Accessories)** - Additional items
 
 ### 🎨 **Design Elements**
+
 - Nike-inspired clean layout
 - Smooth hover animations
 - Product cards with quick view overlay
@@ -48,6 +51,7 @@ src/pages/Home/
 ## 🎯 Performance Optimizations
 
 ### CSS
+
 - `will-change` for animated properties
 - `contain: layout style paint` for isolation
 - `backface-visibility: hidden` for GPU acceleration
@@ -55,6 +59,7 @@ src/pages/Home/
 - Lazy loading images
 
 ### JavaScript
+
 - Pure vanilla JS for carousel (no React re-renders)
 - Single render, then DOM manipulation
 - Event delegation
@@ -91,6 +96,7 @@ import Home from './pages/Home';
 ## 🚀 Key Components
 
 ### HeroSection
+
 ```jsx
 <HeroSection />
 // Auto-playing carousel with 6 slides
@@ -98,16 +104,18 @@ import Home from './pages/Home';
 ```
 
 ### CategorySection
+
 ```jsx
 <CategorySection
-  title="New Arrivals"
-  subtitle="Fresh drops you'll love"
-  products={products}
-  viewAllLink="/products?filter=new"
+    title="New Arrivals"
+    subtitle="Fresh drops you'll love"
+    products={products}
+    viewAllLink="/products?filter=new"
 />
 ```
 
 ### FeaturedBanner
+
 ```jsx
 <FeaturedBanner />
 // Info banner with 3 features
@@ -150,9 +158,10 @@ Render product cards
 ## 🛠 Customization
 
 ### Add New Category
+
 ```javascript
 // In useProductsByCategory.js
-customCategory: allProducts.filter(p => 
+customCategory: allProducts.filter(p =>
   p.categoryId?.name?.toLowerCase().includes('your-category')
 ).slice(0, 8)
 
@@ -166,9 +175,11 @@ customCategory: allProducts.filter(p =>
 ```
 
 ### Change Hero Slides
+
 Edit `heroSlides` array in `HeroSection.jsx`
 
 ### Modify Grid Layout
+
 Edit `.products-grid` in `CategorySection.css`
 
 ---

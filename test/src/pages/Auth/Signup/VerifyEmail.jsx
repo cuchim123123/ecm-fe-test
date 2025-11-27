@@ -1,71 +1,89 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
-import { AuthLayout } from '../common/AuthLayout'
-import { AuthCard, AuthHeader, AuthContent, AuthFooter } from '../common/AuthCard'
-import { CheckCircle2, XCircle, ArrowRight } from 'lucide-react'
-import { API_BASE_URL } from '@/services/config'
-import { LoadingSpinner } from '@/components/common'
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { AuthLayout } from '../common/AuthLayout';
+import {
+    AuthCard,
+    AuthHeader,
+    AuthContent,
+    AuthFooter,
+} from '../common/AuthCard';
+import { CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
+import { API_BASE_URL } from '@/services/config';
+import { LoadingSpinner } from '@/components/common';
 
 const VerifyEmail = () => {
-    const [searchParams] = useSearchParams()
-    const navigate = useNavigate()
-    const [status, setStatus] = useState('verifying') // 'verifying', 'success', 'error', 'invalid'
-    const [message, setMessage] = useState('')
-    const [countdown, setCountdown] = useState(5)
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const [status, setStatus] = useState('verifying'); // 'verifying', 'success', 'error', 'invalid'
+    const [message, setMessage] = useState('');
+    const [countdown, setCountdown] = useState(5);
 
     useEffect(() => {
         const verifyEmail = async () => {
-            const uid = searchParams.get('uid')
-            const token = searchParams.get('token')
+            const uid = searchParams.get('uid');
+            const token = searchParams.get('token');
 
             // Check if parameters are present
             if (!uid || !token) {
-                setStatus('invalid')
-                setMessage('Invalid verification link. Please check your email and try again.')
-                return
+                setStatus('invalid');
+                setMessage(
+                    'Invalid verification link. Please check your email and try again.',
+                );
+                return;
             }
 
             try {
-                const res = await fetch(`${API_BASE_URL}/auth/verify-email?uid=${uid}&token=${token}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
+                const res = await fetch(
+                    `${API_BASE_URL}/auth/verify-email?uid=${uid}&token=${token}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    },
+                );
 
-                const data = await res.json()
+                const data = await res.json();
 
                 if (res.ok) {
-                    setStatus('success')
-                    setMessage(data.message || 'Your email has been successfully verified!')
-                    
+                    setStatus('success');
+                    setMessage(
+                        data.message ||
+                            'Your email has been successfully verified!',
+                    );
+
                     // Start countdown to redirect
                     const timer = setInterval(() => {
-                        setCountdown(prev => {
+                        setCountdown((prev) => {
                             if (prev <= 1) {
-                                clearInterval(timer)
-                                navigate('/login')
-                                return 0
+                                clearInterval(timer);
+                                navigate('/login');
+                                return 0;
                             }
-                            return prev - 1
-                        })
-                    }, 1000)
+                            return prev - 1;
+                        });
+                    }, 1000);
 
-                    return () => clearInterval(timer)
+                    return () => clearInterval(timer);
                 } else {
-                    setStatus('error')
-                    setMessage(data.message || 'Verification failed. The link may have expired.')
+                    setStatus('error');
+                    setMessage(
+                        data.message ||
+                            'Verification failed. The link may have expired.',
+                    );
                 }
             } catch (error) {
-                console.error('Verification error:', error)
-                setStatus('error')
-                setMessage('An error occurred during verification. Please try again later.')
+                console.error('Verification error:', error);
+                setStatus('error');
+                setMessage(
+                    'An error occurred during verification. Please try again later.',
+                );
             }
-        }
+        };
 
-        verifyEmail()
-    }, [searchParams, navigate])
+        verifyEmail();
+    }, [searchParams, navigate]);
 
     const renderContent = () => {
         switch (status) {
@@ -76,7 +94,10 @@ const VerifyEmail = () => {
                             <div className="relative">
                                 <div className="absolute inset-0 bg-blue-500 rounded-full blur-xl opacity-30 animate-pulse"></div>
                                 <div className="relative p-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full shadow-lg">
-                                    <LoadingSpinner size="xl" variant="button" />
+                                    <LoadingSpinner
+                                        size="xl"
+                                        variant="button"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -87,7 +108,7 @@ const VerifyEmail = () => {
                             Please wait while we verify your email address...
                         </p>
                     </>
-                )
+                );
 
             case 'success':
                 return (
@@ -109,12 +130,14 @@ const VerifyEmail = () => {
                         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 text-center">
                             <p className="text-white/80 text-sm [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)]">
                                 Redirecting to login in{' '}
-                                <span className="font-mono font-bold text-white text-lg">{countdown}</span>{' '}
+                                <span className="font-mono font-bold text-white text-lg">
+                                    {countdown}
+                                </span>{' '}
                                 seconds...
                             </p>
                         </div>
                     </>
-                )
+                );
 
             case 'error':
                 return (
@@ -135,12 +158,13 @@ const VerifyEmail = () => {
                         </p>
                         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                             <p className="text-white/80 text-sm text-center [text-shadow:_0_1px_2px_rgb(0_0_0_/_40%)]">
-                                The verification link may have expired or already been used.
-                                Please request a new verification email.
+                                The verification link may have expired or
+                                already been used. Please request a new
+                                verification email.
                             </p>
                         </div>
                     </>
-                )
+                );
 
             case 'invalid':
                 return (
@@ -160,12 +184,12 @@ const VerifyEmail = () => {
                             {message}
                         </p>
                     </>
-                )
+                );
 
             default:
-                return null
+                return null;
         }
-    }
+    };
 
     const renderActions = () => {
         if (status === 'success') {
@@ -178,7 +202,7 @@ const VerifyEmail = () => {
                     Go to Login
                     <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
-            )
+            );
         }
 
         if (status === 'error' || status === 'invalid') {
@@ -200,28 +224,26 @@ const VerifyEmail = () => {
                         Back to Login
                     </Button>
                 </div>
-            )
+            );
         }
 
-        return null
-    }
+        return null;
+    };
 
     return (
         <AuthLayout>
             <AuthCard className="w-[500px]">
                 <AuthContent>
-                    <div className="py-4">
-                        {renderContent()}
-                    </div>
+                    <div className="py-4">{renderContent()}</div>
                 </AuthContent>
-                {(status === 'success' || status === 'error' || status === 'invalid') && (
-                    <AuthFooter>
-                        {renderActions()}
-                    </AuthFooter>
+                {(status === 'success' ||
+                    status === 'error' ||
+                    status === 'invalid') && (
+                    <AuthFooter>{renderActions()}</AuthFooter>
                 )}
             </AuthCard>
         </AuthLayout>
-    )
-}
+    );
+};
 
-export default VerifyEmail
+export default VerifyEmail;

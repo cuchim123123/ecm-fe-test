@@ -16,17 +16,17 @@ import { getAuthHeaders } from '../utils/authHelpers';
  * @returns {Promise<Array>}
  */
 export const getUsers = async (params = {}) => {
-  const url = createUrl(`${API_BASE_URL}${ENDPOINTS.USERS}`, params);
-  
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-  });
-  
-  return handleResponse(response);
+    const url = createUrl(`${API_BASE_URL}${ENDPOINTS.USERS}`, params);
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -35,15 +35,15 @@ export const getUsers = async (params = {}) => {
  * @returns {Promise<Object>}
  */
 export const getUserById = async (id) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/${id}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -52,15 +52,18 @@ export const getUserById = async (id) => {
  * @returns {Promise<Object>}
  */
 export const getUserByEmail = async (email) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/email/${email}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.USERS}/email/${email}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+        },
+    );
+
+    return handleResponse(response);
 };
 
 /**
@@ -69,15 +72,18 @@ export const getUserByEmail = async (email) => {
  * @returns {Promise<Object>}
  */
 export const getUserByPhone = async (phone) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/phone/${encodeURIComponent(phone)}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.USERS}/phone/${encodeURIComponent(phone)}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+        },
+    );
+
+    return handleResponse(response);
 };
 
 /**
@@ -86,15 +92,18 @@ export const getUserByPhone = async (phone) => {
  * @returns {Promise<Object>}
  */
 export const getUserByUsername = async (username) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/username/${username}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.USERS}/username/${username}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+        },
+    );
+
+    return handleResponse(response);
 };
 
 /**
@@ -103,16 +112,16 @@ export const getUserByUsername = async (username) => {
  * @returns {Promise<Object>}
  */
 export const createUser = async (userData) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify(userData),
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify(userData),
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -122,16 +131,16 @@ export const createUser = async (userData) => {
  * @returns {Promise<Object>}
  */
 export const updateUser = async (id, userData) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify(userData),
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify(userData),
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -141,16 +150,16 @@ export const updateUser = async (id, userData) => {
  * @returns {Promise<Object>}
  */
 export const patchUser = async (id, userData) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify(userData),
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/${id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+        body: JSON.stringify(userData),
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -159,15 +168,15 @@ export const patchUser = async (id, userData) => {
  * @returns {Promise<Object>}
  */
 export const deleteUser = async (id) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeaders(),
+        },
+    });
+
+    return handleResponse(response);
 };
 
 /**
@@ -177,16 +186,19 @@ export const deleteUser = async (id) => {
  * @returns {Promise<Object>}
  */
 export const verifyUser = async (id, token) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/${id}/verify`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify({ token }),
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.USERS}/${id}/verify`,
+        {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+            body: JSON.stringify({ token }),
+        },
+    );
+
+    return handleResponse(response);
 };
 
 /**
@@ -197,16 +209,19 @@ export const verifyUser = async (id, token) => {
  * @returns {Promise<Object>}
  */
 export const setUserPassword = async (id, password, confirmPassword) => {
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/${id}/set-password`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders(),
-    },
-    body: JSON.stringify({ password, confirmPassword }),
-  });
-  
-  return handleResponse(response);
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.USERS}/${id}/set-password`,
+        {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
+            },
+            body: JSON.stringify({ password, confirmPassword }),
+        },
+    );
+
+    return handleResponse(response);
 };
 
 /**
@@ -216,18 +231,21 @@ export const setUserPassword = async (id, password, confirmPassword) => {
  * @returns {Promise<Object>}
  */
 export const uploadAvatar = async (id, file) => {
-  const formData = new FormData();
-  formData.append('avatar', file);
-  
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/${id}/avatar`, {
-    method: 'POST',
-    headers: {
-      ...getAuthHeaders(),
-    },
-    body: formData,
-  });
-  
-  return handleResponse(response);
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.USERS}/${id}/avatar`,
+        {
+            method: 'POST',
+            headers: {
+                ...getAuthHeaders(),
+            },
+            body: formData,
+        },
+    );
+
+    return handleResponse(response);
 };
 
 /**
@@ -237,16 +255,19 @@ export const uploadAvatar = async (id, file) => {
  * @returns {Promise<Object>}
  */
 export const updateAvatar = async (id, file) => {
-  const formData = new FormData();
-  formData.append('avatar', file);
-  
-  const response = await fetch(`${API_BASE_URL}${ENDPOINTS.USERS}/${id}/avatar`, {
-    method: 'PATCH',
-    headers: {
-      ...getAuthHeaders(),
-    },
-    body: formData,
-  });
-  
-  return handleResponse(response);
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const response = await fetch(
+        `${API_BASE_URL}${ENDPOINTS.USERS}/${id}/avatar`,
+        {
+            method: 'PATCH',
+            headers: {
+                ...getAuthHeaders(),
+            },
+            body: formData,
+        },
+    );
+
+    return handleResponse(response);
 };

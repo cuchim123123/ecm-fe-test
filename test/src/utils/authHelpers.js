@@ -3,7 +3,7 @@
  * @returns {string|null} Auth token
  */
 export const getAuthToken = () => {
-  return localStorage.getItem('authToken');
+    return localStorage.getItem('authToken');
 };
 
 /**
@@ -11,14 +11,14 @@ export const getAuthToken = () => {
  * @param {string} token - Auth token
  */
 export const setAuthToken = (token) => {
-  localStorage.setItem('authToken', token);
+    localStorage.setItem('authToken', token);
 };
 
 /**
  * Remove authentication token from storage
  */
 export const removeAuthToken = () => {
-  localStorage.removeItem('authToken');
+    localStorage.removeItem('authToken');
 };
 
 /**
@@ -26,7 +26,7 @@ export const removeAuthToken = () => {
  * @returns {boolean}
  */
 export const isAuthenticated = () => {
-  return !!getAuthToken();
+    return !!getAuthToken();
 };
 
 /**
@@ -34,14 +34,14 @@ export const isAuthenticated = () => {
  * @returns {Object} Headers with authorization and content type
  */
 export const getAuthHeaders = () => {
-  const token = getAuthToken();
-  const headers = {
-    'Content-Type': 'application/json',
-  };
-  
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-  
-  return headers;
+    const token = getAuthToken();
+    const headers = {
+        'Content-Type': 'application/json',
+    };
+
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return headers;
 };

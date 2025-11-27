@@ -1,13 +1,13 @@
 import React from 'react';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
 /**
@@ -22,34 +22,40 @@ import {
  * @param {string} variant - Confirm button variant (default: "default", can be "destructive")
  */
 const ConfirmDialog = ({
-  open,
-  onOpenChange,
-  onConfirm,
-  title = 'Are you sure?',
-  description = 'This action cannot be undone.',
-  confirmText = 'Continue',
-  cancelText = 'Cancel',
-  variant = 'default',
+    open,
+    onOpenChange,
+    onConfirm,
+    title = 'Are you sure?',
+    description = 'This action cannot be undone.',
+    confirmText = 'Continue',
+    cancelText = 'Cancel',
+    variant = 'default',
 }) => {
-  return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>{cancelText}</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={onConfirm}
-            className={variant === 'destructive' ? 'bg-red-600 hover:bg-red-700' : ''}
-          >
-            {confirmText}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
+    return (
+        <AlertDialog open={open} onOpenChange={onOpenChange}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>{title}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        {description}
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>{cancelText}</AlertDialogCancel>
+                    <AlertDialogAction
+                        onClick={onConfirm}
+                        className={
+                            variant === 'destructive'
+                                ? 'bg-red-600 hover:bg-red-700'
+                                : ''
+                        }
+                    >
+                        {confirmText}
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    );
 };
 
 export default ConfirmDialog;

@@ -1,10 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom'; // [1] THÊM IMPORT
+import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App.jsx';
-// import AppRoutes from './routes/AppRoutes'; // [2] XÓA DÒNG NÀY (Dư thừa, App.jsx đã dùng rồi)
-import { AuthProvider } from './hooks/useAuth'; 
+import { AuthProvider } from './context/AuthProvider';
+import { CartProvider } from './context/CartContext';
 import { initAPIPreconnect } from './utils/prefetch';
 import { initPerformanceTracking } from './utils/performance';
 
@@ -27,10 +27,11 @@ async function enableMocking() {
 
 enableMocking().then(() => {
     createRoot(document.getElementById('root')).render(
-        // [3] BỌC BROWSER ROUTER Ở NGOÀI CÙNG
         <BrowserRouter>
             <AuthProvider>
-                <App />
+                <CartProvider>
+                    <App />
+                </CartProvider>
             </AuthProvider>
         </BrowserRouter>
     );

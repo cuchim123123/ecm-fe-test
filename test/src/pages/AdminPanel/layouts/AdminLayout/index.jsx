@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { SearchBar, LoadingSpinner } from '@/components/common';
+import { ADMIN_ROUTES } from '@/config/routes';
 
 /**
  * Reusable Admin Panel Layout with sticky header behavior
@@ -71,6 +73,28 @@ const AdminLayout = ({
             children
           )}
         </div>
+      </div>
+
+      {/* Quick access floating buttons */}
+      <div className="fixed bottom-5 right-5 z-40 flex flex-col gap-2">
+        <Link
+          to={ADMIN_ROUTES.VOUCHERS}
+          className="bg-stone-900 text-white px-4 py-2 rounded-lg shadow hover:bg-stone-700 text-sm"
+        >
+          Vouchers
+        </Link>
+        <Link
+          to={ADMIN_ROUTES.BADGES}
+          className="bg-stone-900 text-white px-4 py-2 rounded-lg shadow hover:bg-stone-700 text-sm"
+        >
+          Badges
+        </Link>
+        <Link
+          to={ADMIN_ROUTES.LOYALTY}
+          className="bg-stone-900 text-white px-4 py-2 rounded-lg shadow hover:bg-stone-700 text-sm"
+        >
+          Loyalty
+        </Link>
       </div>
     </div>
   );

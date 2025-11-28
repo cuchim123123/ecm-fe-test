@@ -36,6 +36,21 @@ const Sidebar = () => {
       title: 'Discount Codes', 
       route: ADMIN_ROUTES.DISCOUNT_CODES 
     },
+    { 
+      icon: <Tag />, 
+      title: 'Vouchers', 
+      route: ADMIN_ROUTES.VOUCHERS 
+    },
+    { 
+      icon: <Tag />, 
+      title: 'Badges', 
+      route: ADMIN_ROUTES.BADGES 
+    },
+    { 
+      icon: <Tag />, 
+      title: 'Loyalty', 
+      route: ADMIN_ROUTES.LOYALTY 
+    },
   ];
 
   const handleTabClick = (route) => {

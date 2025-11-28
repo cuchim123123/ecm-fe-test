@@ -23,7 +23,7 @@ export {
 
 // Cart hooks - Add products to cart, manage cart state
 export { useAddToCart } from './useAddToCart';
-export { useCart } from './useCart';
+export { useCart } from './useCartLogic';
 
 // Order hooks - Order management and checkout
 export { useOrders } from './useOrders';

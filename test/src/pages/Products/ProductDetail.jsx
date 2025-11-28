@@ -4,7 +4,8 @@ import { ChevronLeft, ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
 import { LoadingSpinner, ErrorMessage } from '@/components/common';
 import { Button } from '@/components/ui/button';
-import { useProductDetail, useCart } from '@/hooks';
+import { useProductDetail } from '@/hooks';
+import { useCartContext } from '@/context/CartContext';
 import { ROUTES } from '@/config/routes';
 import './ProductDetail.css';
 
@@ -23,7 +24,7 @@ const ReviewSection = lazy(() => import('./components/ReviewSection'));
 const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { addItem } = useCart();
+    const { addItem } = useCartContext();
 
     const {
         product,

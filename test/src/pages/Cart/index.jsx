@@ -8,7 +8,7 @@ import { ROUTES } from '@/config/routes';
 import CartItem from './components/CartItem';
 import CartSummary from './components/CartSummary';
 import EmptyCart from './components/EmptyCart';
-import { useCart } from './hooks/useCart';
+import { useCartContext } from '@/context/CartContext';
 import './Cart.css';
 
 const Cart = () => {
@@ -17,17 +17,48 @@ const Cart = () => {
         cartItems,
         loading,
         error,
-        subtotal,
-        handleUpdateQuantity,
-        handleRemoveItem,
-        handleClearCart,
-        showClearConfirm,
-        setShowClearConfirm,
-        showRemoveConfirm,
-        setShowRemoveConfirm,
-        confirmClearCart,
-        confirmRemoveItem,
-    } = useCart();
+        cartSummary,
+        updateItemQuantity,
+        removeItem,
+        clearAllItems,
+    } = useCartContext();
+
+    const [showClearConfirm, setShowClearConfirm] = React.useState(false);
+    const [showRemoveConfirm, setShowRemoveConfirm] = React.useState(false);
+    const [itemToRemove, setItemToRemove] = React.useState(null);
+
+    const subtotal = cartSummary?.subtotal || 0;
+
+    const handleUpdateQuantity = async (itemId, newQuantity) => {
+        await updateItemQuantity(itemId, newQuantity);
+    };
+
+    const handleRemoveItem = (itemId) => {
+        setItemToRemove(itemId);
+        setShowRemoveConfirm(true);
+    };
+
+    const confirmRemoveItem = async () => {
+        if (!itemToRemove) return;
+        try {
+            await removeItem(itemToRemove);
+        } finally {
+            setShowRemoveConfirm(false);
+            setItemToRemove(null);
+        }
+    };
+
+    const handleClearCart = () => {
+        setShowClearConfirm(true);
+    };
+
+    const confirmClearCart = async () => {
+        try {
+            await clearAllItems();
+        } finally {
+            setShowClearConfirm(false);
+        }
+    };
 
     if (loading) {
         return (

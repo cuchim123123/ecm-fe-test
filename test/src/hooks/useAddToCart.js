@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { useCart } from './useCart';
+import { useCart } from './useCartLogic';
 
 /**
  * Hook for adding products to cart

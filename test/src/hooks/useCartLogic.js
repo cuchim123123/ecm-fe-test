@@ -1,16 +1,17 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+// [THAY ĐỔI] Import đúng tên hàm mới từ service
 import {
     getCartByUser,
     getCartBySession,
     createCart,
     clearCart,
     deleteCart,
-    createCartItem,
-    getCartItems,
-    updateCartItem,
-    deleteCartItem,
+    addItem as apiAddItem, // Thay cho createCartItem
+    removeItem as apiRemoveItem, // Thay cho deleteCartItem & updateCartItem (giảm)
 } from '../services';
 import { useAuth } from './useAuth';
+
+import { getSocket } from '../services/socket';
 
 /**
  * Custom hook for cart management
@@ -66,74 +67,106 @@ export const useCart = () => {
         if (authLoading) return;
 
         try {
-            setLoading(true);
             setError(null);
+            let cartData = null;
 
-            let cartData;
-
+            // 1. Gọi API lấy dữ liệu thô từ Backend
             if (user?._id) {
                 try {
                     cartData = await getCartByUser(user._id);
-                } catch (userErr) {
-                    // If user cart fetch fails with 404, the user ID might be invalid
-                    // Fall back to guest session cart
-                    if (
-                        userErr.response?.status === 404 ||
-                        userErr.message?.includes('not found') ||
-                        userErr.message?.includes('404')
-                    ) {
-                        console.warn(
-                            'User cart not found, falling back to guest session',
-                        );
-
-                        // Try guest cart as fallback
-                        const sessionId = getSessionId();
-                        try {
-                            cartData = await getCartBySession(sessionId);
-                        } catch (sessionErr) {
-                            // Both failed - treat as no cart
-                            if (
-                                sessionErr.response?.status === 404 ||
-                                sessionErr.message?.includes('not found') ||
-                                sessionErr.message?.includes('404')
-                            ) {
-                                cartData = null;
-                            } else {
-                                throw sessionErr;
-                            }
-                        }
-                    } else {
-                        throw userErr;
-                    }
+                } catch (err) {
+                    if (err.response?.status !== 404) console.error(err);
                 }
             } else {
-                const sessionId = getSessionId();
-                cartData = await getCartBySession(sessionId);
+                try {
+                    cartData = await getCartBySession(getSessionId());
+                } catch (err) {
+                    if (err.response?.status !== 404) console.error(err);
+                }
             }
 
+            // 2. Set state cho cart tổng
             setCart(cartData);
 
-            const cartId = cartData?.id || cartData?._id;
-            if (cartId) {
-                const items = await getCartItems(cartId);
-                setCartItems(items);
+            // 3. [QUAN TRỌNG] ADAPTER - CHUYỂN ĐỔI DỮ LIỆU CHO UI
+            if (cartData && Array.isArray(cartData.items)) {
+                // console.log('🔥 RAW ITEMS FROM BACKEND:', cartData.items);
+
+                const adaptedItems = cartData.items.map((item) => {
+                    // 1. Lấy Variant (JSON của bạn dùng key "variant")
+                    // Kiểm tra kỹ xem nó là object hay null
+                    const rawVariant =
+                        item.variant && typeof item.variant === 'object'
+                            ? item.variant
+                            : {};
+
+                    // 2. Lấy Product (Nằm TRONG variant.productId theo JSON bạn gửi)
+                    // item.product ở ngoài chỉ là string ID, không dùng được
+                    const rawProduct =
+                        rawVariant.productId &&
+                        typeof rawVariant.productId === 'object'
+                            ? rawVariant.productId
+                            : {};
+
+                    // 3. Xử lý Giá (JSON item.price là số 350000, nhưng đề phòng Decimal128)
+                    let finalPrice = item.price || rawVariant.price || 0;
+                    if (typeof finalPrice === 'object' && finalPrice !== null) {
+                        finalPrice = parseFloat(
+                            finalPrice.$numberDecimal || finalPrice.value || 0,
+                        );
+                    }
+
+                    if (!rawProduct.name)
+                        console.warn('Missing Name for Item:', item);
+
+                    // 4. Return cấu trúc chuẩn cho UI (CartItem.jsx)
+                    return {
+                        id: item._id || item.id,
+                        cartId: cartData._id || cartData.id,
+                        quantity: item.quantity,
+                        price: finalPrice,
+
+                        product: {
+                            _id: rawProduct._id || rawProduct.id,
+                            // [FIX] Nếu không có tên product, thử lấy tên từ variant, hoặc hiển thị text mặc định
+                            name:
+                                rawProduct.name ||
+                                rawVariant.name ||
+                                'Sản phẩm chưa cập nhật tên',
+                            slug: rawProduct.slug,
+                            imageUrls: Array.isArray(rawProduct.imageUrls)
+                                ? rawProduct.imageUrls
+                                : [],
+                            minPrice: rawProduct.minPrice,
+                            maxPrice: rawProduct.maxPrice,
+                            stockQuantity: 999,
+                        },
+
+                        variant: {
+                            _id: rawVariant._id || rawVariant.id,
+                            productId: rawProduct._id,
+                            // [FIX] Nếu SKU null hoặc undefined, trả về chuỗi rỗng để UI ẩn đi thay vì hiện lỗi
+                            sku: rawVariant.sku || '',
+                            price: finalPrice,
+                            stockQuantity: rawVariant.stockQuantity,
+                            attributes: rawVariant.attributes,
+                            imageUrls: Array.isArray(rawVariant.imageUrls)
+                                ? rawVariant.imageUrls
+                                : [],
+                        },
+                    };
+                });
+
+                // console.log('✅ ADAPTED ITEMS:', adaptedItems);
+                setCartItems(adaptedItems);
             } else {
                 setCartItems([]);
             }
         } catch (err) {
-            if (
-                err.response?.status === 404 ||
-                err.message?.includes('not found') ||
-                err.message?.includes('404')
-            ) {
-                // Cart not found is normal for new users or after clearing
-                setCart(null);
-                setCartItems([]);
-                setError(null); // Don't show error for missing cart
-            } else {
-                setError(err.message || 'Failed to fetch cart');
-                console.error('Error fetching cart:', err);
-            }
+            console.error('Error fetching cart:', err);
+            setError('Không thể tải giỏ hàng');
+            setCart(null);
+            setCartItems([]);
         } finally {
             setLoading(false);
         }
@@ -195,17 +228,23 @@ export const useCart = () => {
                         ),
                     );
 
-                    await updateCartItem(existingId, { quantity: newQuantity });
-                } else {
-                    // For new items, we can't fully optimistic update because we need the real ID from DB.
-                    // However, we can wait for the response without blocking the whole UI global loader.
-                    const newItem = await createCartItem({
-                        cartId: currentCartId,
-                        variantId: variantId || undefined,
+                    await apiAddItem(currentCartId, {
+                        variantId: variantId || existingItem.variantId._id, // Lưu ý: item backend trả về variant là object, cần lấy ._id
                         quantity,
+                        userId: user?._id, // Gửi kèm userId để socket hoạt động (nếu guest)
+                    });
+                } else {
+                    // [THAY ĐỔI] Gọi API mới cho item mới
+                    // Backend trả về Cart object hoàn chỉnh, ta lấy item mới từ đó hoặc fetch lại
+                    await apiAddItem(currentCartId, {
+                        variantId: variantId, // Bắt buộc phải có variantId
+                        quantity,
+                        userId: user?._id,
                     });
 
-                    setCartItems((prev) => [...prev, newItem]);
+                    // Vì backend trả về cả Cart, tốt nhất là gọi fetchCart() để đồng bộ lại ID thật
+                    // Nếu muốn giữ Optimistic cho new item thì hơi khó vì chưa có _id thật
+                    fetchCart();
                 }
 
                 // Update cart totals (Optimistic-ish)
@@ -229,58 +268,74 @@ export const useCart = () => {
     // Remove item from cart
     const removeItem = useCallback(
         async (itemId) => {
-            // Capture item from Ref to ensure we have data for revert
+            // 1. Lấy thông tin item từ Ref để phục vụ Revert nếu lỗi
             const itemToRemove = cartItemsRef.current.find(
                 (item) => getItemId(item) === itemId,
             );
 
+            if (!itemToRemove) return;
+
             try {
                 setError(null);
 
-                // Optimistic update
+                // 2. Optimistic Update (Cập nhật giao diện ngay lập tức)
+                // 2.1. Xóa khỏi danh sách item
                 setCartItems((prev) =>
                     prev.filter((item) => getItemId(item) !== itemId),
                 );
 
-                if (cart && itemToRemove) {
+                // 2.2. [THÊM] Trừ số lượng tổng trên giỏ hàng ngay lập tức
+                if (cart) {
                     setCart((prev) => ({
                         ...prev,
-                        itemCount: Math.max(
-                            0,
-                            (prev.itemCount || 0) -
-                                (itemToRemove.quantity || 1),
-                        ),
+                        itemCount: Math.max(0, (prev.itemCount || 0) - (itemToRemove.quantity || 1)),
+                        // Tạm thời chưa trừ totalPrice vì cần tính toán phức tạp, 
+                        // để socket hoặc fetchCart cập nhật sau cũng được.
                     }));
                 }
 
-                await deleteCartItem(itemId);
+                // 3. Gọi API Xóa Mới
+                // [FIX] Lấy variantId chuẩn từ Adapter (ưu tiên variant._id)
+                const variantId = itemToRemove.variant?._id || itemToRemove.variantId?._id || itemToRemove.variantId;
+
+                if (!variantId) {
+                    throw new Error("Missing Variant ID");
+                }
+
+                await apiRemoveItem(cart?.id || cart?._id, {
+                    variantId,
+                    quantity: itemToRemove.quantity, // Gửi toàn bộ số lượng để xóa sạch
+                    userId: user?._id,
+                });
+
+                // [ĐÃ XÓA] Dòng await deleteCartItem(itemId) thừa thãi ở đây
+
             } catch (err) {
                 setError(err.message || 'Failed to remove item');
                 console.error('Error removing item:', err);
 
-                // Revert optimistic update
+                // 4. Revert (Hoàn tác nếu lỗi)
                 if (itemToRemove) {
                     setCartItems((prev) => [...prev, itemToRemove]);
+                    
                     // Revert totals
                     if (cart) {
                         setCart((prev) => ({
                             ...prev,
-                            itemCount:
-                                (prev.itemCount || 0) +
-                                (itemToRemove.quantity || 1),
+                            itemCount: (prev.itemCount || 0) + (itemToRemove.quantity || 1),
                         }));
                     }
                 }
                 throw err;
             }
         },
-        [cart], // Removed cartItems dependency
+        [cart, user], // cartItems không cần dependency vì dùng ref
     );
 
     // Update item quantity with debouncing
     const updateItemQuantity = useCallback(
         async (itemId, quantity) => {
-            // 1. Get current item state from Ref (avoid stale closure)
+            // 1. Lấy item hiện tại từ Ref
             const oldItem = cartItemsRef.current.find(
                 (item) => getItemId(item) === itemId,
             );
@@ -291,7 +346,7 @@ export const useCart = () => {
                 return;
             }
 
-            // 2. Optimistic update
+            // 2. Optimistic update (Cập nhật giao diện trước)
             const quantityDiff = oldItem ? quantity - oldItem.quantity : 0;
 
             setCartItems((prev) =>
@@ -320,42 +375,56 @@ export const useCart = () => {
             const newReqId = prevReqId + 1;
             requestIdRef.current.set(itemId, newReqId);
 
-            // 5. Debounce API Call
+            // 5. Debounce API Call (Chờ 300ms mới gọi server)
             const timeoutId = setTimeout(async () => {
                 try {
-                    const updatedItem = await updateCartItem(itemId, {
-                        quantity,
-                    });
+                    const currentCartId = cart?.id || cart?._id;
+                    const diff = quantity - oldItem.quantity;
 
-                    // 6. Race Condition Check: Only apply if this is the LATEST request
+                    // [QUAN TRỌNG] Lấy variantId đúng chuẩn Adapter mới
+                    const variantId =
+                        oldItem.variant?._id ||
+                        oldItem.variantId?._id ||
+                        oldItem.variantId;
+
+                    if (diff > 0) {
+                        // Tăng số lượng -> Gọi Add
+                        await apiAddItem(currentCartId, {
+                            variantId,
+                            quantity: diff,
+                            userId: user?._id,
+                        });
+                    } else if (diff < 0) {
+                        // Giảm số lượng -> Gọi Remove
+                        await apiRemoveItem(currentCartId, {
+                            variantId,
+                            quantity: Math.abs(diff),
+                            userId: user?._id,
+                        });
+                    }
+
+                    // 6. Race Condition Check
                     if (requestIdRef.current.get(itemId) === newReqId) {
-                        setCartItems((prev) =>
-                            prev.map((item) =>
-                                getItemId(item) === getItemId(updatedItem)
-                                    ? updatedItem
-                                    : item,
-                            ),
-                        );
+                        // Gọi fetchCart để đồng bộ lại giá tiền chuẩn từ server
+                        // Vì API Add/Remove trả về Cart object, ta có thể dùng luôn nếu muốn tối ưu hơn
+                        fetchCart();
 
                         // Clean up refs
                         updateTimeoutsRef.current.delete(itemId);
                         requestIdRef.current.delete(itemId);
                     }
                 } catch (err) {
-                    // Only revert if this matches the latest request ID
+                    // Revert logic (Giữ nguyên như cũ)
                     if (requestIdRef.current.get(itemId) === newReqId) {
-                        setError(err.message || 'Failed to update quantity');
                         console.error('Error updating quantity:', err);
+                        setError(err.message || 'Failed to update quantity');
 
-                        // Revert to old item
                         if (oldItem) {
                             setCartItems((prev) =>
                                 prev.map((item) =>
                                     getItemId(item) === itemId ? oldItem : item,
                                 ),
                             );
-
-                            // Revert totals
                             if (cart) {
                                 const revertDiff = oldItem.quantity - quantity;
                                 setCart((prev) => ({
@@ -369,11 +438,11 @@ export const useCart = () => {
                         }
                     }
                 }
-            }, 300); // 300ms debounce
+            }, 300);
 
             updateTimeoutsRef.current.set(itemId, timeoutId);
         },
-        [cart, removeItem],
+        [cart, removeItem, fetchCart, user], // Thêm fetchCart vào dependency
     );
 
     // Clear all items from cart
@@ -382,13 +451,14 @@ export const useCart = () => {
         if (!currentCartId) return;
 
         try {
-            setLoading(true); // Keep global loading for destructive full-cart actions
+            setLoading(true);
             setError(null);
 
-            await clearCart(currentCartId);
+            // [CẬP NHẬT] Gửi kèm userId để Backend bắn socket thông báo
+            await clearCart(currentCartId, user?._id);
+
+            // Cập nhật UI ngay lập tức (Optimistic UI)
             setCartItems([]);
-            // Optionally fetchCart here if you need to sync totals from server
-            // await fetchCart();
             setCart((prev) => ({ ...prev, itemCount: 0, totalPrice: 0 }));
         } catch (err) {
             setError(err.message || 'Failed to clear cart');
@@ -397,7 +467,7 @@ export const useCart = () => {
         } finally {
             setLoading(false);
         }
-    }, [cart]);
+    }, [cart, user]);
 
     // Delete entire cart
     const deleteCurrentCart = useCallback(async () => {

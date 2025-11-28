@@ -1,6 +1,41 @@
 /* Navbar Responsive Styles */
 
 /* Navbar scroll behavior */
+
+.cart-icon-container {
+    position: relative !important; /* Bắt buộc */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Chấm đỏ hiển thị số lượng */
+.cart-badge {
+    position: absolute;
+    top: -5px;          /* Đẩy lên trên */
+    right: -8px;        /* Đẩy sang phải */
+    
+    background-color: #ef4444; /* Màu đỏ */
+    color: white;
+    
+    font-size: 10px;    /* Chữ nhỏ */
+    font-weight: 700;
+    line-height: 1;     /* Canh giữa chữ */
+    
+    min-width: 16px;    /* Kích thước tròn */
+    height: 16px;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    border-radius: 9999px; /* Tròn vo */
+    border: 2px solid white; /* Viền trắng tách biệt */
+    
+    z-index: 50;        /* Nổi lên trên cùng */
+    pointer-events: none; /* Không chặn click vào icon */
+}
+
 .navbar-wrapper {
     position: fixed;
     top: 0;

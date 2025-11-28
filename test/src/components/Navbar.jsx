@@ -19,6 +19,7 @@ import {
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { getCategories } from '@/services/categories.service';
+import { useCartContext } from '@/context/CartContext';
 import { useAuth } from '@/hooks/useAuth';
 import './Navbar.css';
 
@@ -39,7 +40,7 @@ const USER_MENU_LINKS = [
 const Navbar = () => {
     const navigate = useNavigate();
     const { user, logout: authLogout } = useAuth();
-    const [cartCount, setCartCount] = useState(0);
+    // const [cartCount, setCartCount] = useState(0);
     const [showSearch, setShowSearch] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -48,15 +49,10 @@ const Navbar = () => {
     const [lastScrollY, setLastScrollY] = useState(0);
     const [categories, setCategories] = useState([]);
 
-    const updateCartCount = () => {
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const totalItems = cart.reduce(
-            (sum, item) => sum + (item.quantity || 0),
-            0,
-        );
-        setCartCount(totalItems);
-    };
+    const { cartSummary } = useCartContext();
+    const cartCount = cartSummary?.itemCount || 0;
 
+    console.log('NAVBAR CART COUNT:', cartCount);
     const handleScroll = () => {
         const currentScrollY = window.scrollY;
 
@@ -132,7 +128,7 @@ const Navbar = () => {
 
     useEffect(() => {
         // Initial load
-        updateCartCount();
+        // updateCartCount();
 
         // Fetch categories
         const fetchCategories = async () => {
@@ -146,11 +142,14 @@ const Navbar = () => {
         fetchCategories();
 
         // Listen for cart updates
-        window.addEventListener('cartUpdated', updateCartCount);
+        // window.addEventListener('cartUpdated', updateCartCount);
         window.addEventListener('scroll', handleScroll, { passive: true });
 
+        // return () => {
+        //     window.removeEventListener('cartUpdated', updateCartCount);
+        //     window.removeEventListener('scroll', handleScroll);
+        // };
         return () => {
-            window.removeEventListener('cartUpdated', updateCartCount);
             window.removeEventListener('scroll', handleScroll);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -577,13 +576,14 @@ const Navbar = () => {
 
     // Render cart icon
     const renderCart = () => (
-        <Link to="/cart" className="relative">
+        <Link to="/cart" className="cart-icon-container">
             <ShoppingCart className="w-5 cursor-pointer" />
-            {cartCount > 0 && (
-                <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
-                    {cartCount}
-                </p>
-            )}
+
+            {/* [ĐÃ SỬA] Bỏ điều kiện cartCount > 0 đi */}
+            {/* Badge này giờ sẽ luôn hiện, kể cả là số 0 */}
+            <span className="cart-badge">
+                {cartCount > 99 ? '99+' : cartCount}
+            </span>
         </Link>
     );
 

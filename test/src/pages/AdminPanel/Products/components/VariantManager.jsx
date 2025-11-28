@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Badge from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { formatPrice } from '@/utils/formatPrice';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -100,46 +101,45 @@ const VariantManager = ({
             return;
         }
 
-        const generateCombinations = (arrays) => {
-            if (arrays.length === 0) return [[]];
-            const [first, ...rest] = arrays;
-            const restCombinations = generateCombinations(rest);
-            return first.flatMap((value) =>
-                restCombinations.map((combo) => [value, ...combo]),
-            );
-        };
-
-        const attrValues = attributeDefinitions.map((attr) =>
-            attr.values.map((val) => ({ name: attr.name, value: val })),
-        );
-
-        const combinations = generateCombinations(attrValues);
-
-        const newVariants = combinations.map((combo, index) => {
-            const attributes = combo.map((attr) => ({
-                name: attr.name,
-                value: attr.value,
-            }));
-
-            // Generate SKU from combination
-            const skuSuffix = combo
-                .map((c) => c.value.toUpperCase().replace(/\s+/g, '-'))
-                .join('-');
-
-            return {
-                tempId: `temp_${Date.now()}_${index}`,
-                attributes,
-                sku: `PROD-${skuSuffix}`,
-                price: '',
-                stockQuantity: 0,
-            };
-        });
-
-        setGeneratedVariants(newVariants);
-        toast.success(`Generated ${newVariants.length} variant combinations`, {
-            description: 'Now set SKU and price for each combination',
-        });
+    const generateCombinations = (arrays) => {
+      if (arrays.length === 0) return [[]];
+      const [first, ...rest] = arrays;
+      const restCombinations = generateCombinations(rest);
+      return first.flatMap(value =>
+        restCombinations.map(combo => [value, ...combo])
+      );
     };
+    
+    const attrValues = attributeDefinitions.map(attr => 
+      attr.values.map(val => ({ name: attr.name, value: val }))
+    );
+    
+    const combinations = generateCombinations(attrValues);
+    
+    const newVariants = combinations.map((combo, index) => {
+      const attributes = combo.map(attr => ({
+        name: attr.name,
+        value: attr.value
+      }));
+      
+      // Generate SKU from combination
+      const skuSuffix = combo.map(c => c.value.toUpperCase().replace(/\s+/g, '-')).join('-');
+      
+      return {
+        tempId: `temp_${Date.now()}_${index}`,
+        attributes,
+        sku: `PROD-${skuSuffix}`,
+        price: '',
+        stockQuantity: 0,
+        imageUrls: [],
+      };
+    });
+    
+    setGeneratedVariants(newVariants);
+    toast.success(`Generated ${newVariants.length} variant combinations`, {
+      description: 'Now set SKU and price for each combination',
+    });
+  };
 
     // Step 4: Update variant price/stock
     const updateGeneratedVariant = (index, field, value) => {
@@ -204,28 +204,21 @@ const VariantManager = ({
         try {
             if (!selectedVariant) return;
 
-            setLoading(true);
-            await productsService.deleteVariant(selectedVariant._id);
-
-            setVariants((prev) =>
-                prev.filter((v) => v._id !== selectedVariant._id),
-            );
-            toast.success('Variant deleted successfully');
-            setShowDeleteDialog(false);
-            setSelectedVariant(null);
-
-            if (onUpdate) onUpdate();
-        } catch (error) {
-            toast.error(error.message || 'Failed to delete variant');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const formatPrice = (price) => {
-        const value = price?.$numberDecimal || price;
-        return value ? `$${parseFloat(value).toFixed(2)}` : 'N/A';
-    };
+      setLoading(true);
+      await productsService.deleteVariant(selectedVariant._id);
+      
+      setVariants(prev => prev.filter(v => v._id !== selectedVariant._id));
+      toast.success('Variant deleted successfully');
+      setShowDeleteDialog(false);
+      setSelectedVariant(null);
+      
+      if (onUpdate) onUpdate();
+    } catch (error) {
+      toast.error(error.message || 'Failed to delete variant');
+    } finally {
+      setLoading(false);
+    }
+  };
 
     const formatAttributes = (attributes) => {
         if (!attributes || attributes.length === 0) return 'No attributes';
@@ -320,54 +313,43 @@ const VariantManager = ({
                 </div>
             )}
 
-            {/* Add Variant Modal */}
-            {showAddModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                        <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                Add Product Variants
-                            </h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                Create attributes, add values, then generate all
-                                combinations
-                            </p>
-                        </div>
-
-                        <div className="p-6 space-y-6">
-                            {/* Step 1 & 2: Define Attributes and Values */}
-                            {generatedVariants.length === 0 && (
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <h4 className="text-base font-bold text-gray-900 dark:text-white">
-                                            📝 Step 1: Create Attributes
-                                        </h4>
-                                        <div className="flex gap-2">
-                                            <Input
-                                                placeholder="Enter attribute name (Color, Size, Storage...)"
-                                                value={newAttributeName}
-                                                onChange={(e) =>
-                                                    setNewAttributeName(
-                                                        e.target.value,
-                                                    )
-                                                }
-                                                onKeyPress={(e) =>
-                                                    e.key === 'Enter' &&
-                                                    (e.preventDefault(),
-                                                    addAttributeDefinition())
-                                                }
-                                            />
-                                            <Button
-                                                type="button"
-                                                onClick={addAttributeDefinition}
-                                                size="sm"
-                                                className="whitespace-nowrap"
-                                            >
-                                                <Plus className="w-4 h-4 mr-1" />
-                                                Add Attribute
-                                            </Button>
-                                        </div>
-                                    </div>
+      {/* Add Variant Modal */}
+      {showAddModal && (
+        <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] p-4'>
+          <div className='bg-white dark:bg-gray-800 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto'>
+            <div className='sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4'>
+              <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>Add Product Variants</h3>
+              <p className='text-sm text-gray-500 dark:text-gray-400 mt-1'>
+                Create attributes, add values, then generate all combinations
+              </p>
+            </div>
+            
+            <div className='p-6 space-y-6'>
+              {/* Step 1 & 2: Define Attributes and Values */}
+              {generatedVariants.length === 0 && (
+                <div className='space-y-4'>
+                  <div className='space-y-2'>
+                    <h4 className='text-base font-bold text-gray-900 dark:text-white'>
+                      📝 Step 1: Create Attributes
+                    </h4>
+                    <div className='flex gap-2'>
+                      <Input
+                        placeholder='Enter attribute name (Color, Size, Storage...)'
+                        value={newAttributeName}
+                        onChange={(e) => setNewAttributeName(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addAttributeDefinition())}
+                      />
+                      <Button 
+                        type='button' 
+                        onClick={addAttributeDefinition} 
+                        size='sm' 
+                        className='whitespace-nowrap'
+                      >
+                        <Plus className='w-4 h-4 mr-1' />
+                        Add Attribute
+                      </Button>
+                    </div>
+                  </div>
 
                                     {/* Display Attributes */}
                                     {attributeDefinitions.length === 0 ? (
@@ -553,156 +535,122 @@ const VariantManager = ({
                                 </div>
                             )}
 
-                            {/* Step 3: Set Prices for Generated Variants */}
-                            {generatedVariants.length > 0 && (
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <h4 className="text-base font-bold text-gray-900 dark:text-white">
-                                            💰 Step 3: Set SKU & Price for Each
-                                            Combination
-                                        </h4>
-                                        <Button
-                                            onClick={() => {
-                                                setGeneratedVariants([]);
-                                                setAttributeDefinitions([]);
-                                                setNewAttributeName('');
-                                                setAttributeValueInputs({});
-                                            }}
-                                            variant="outline"
-                                            size="sm"
-                                        >
-                                            Start Over
-                                        </Button>
-                                    </div>
-
-                                    <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
-                                        {generatedVariants.map(
-                                            (variant, index) => (
-                                                <div
-                                                    key={variant.tempId}
-                                                    className="p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600"
-                                                >
-                                                    <div className="flex flex-wrap gap-2 mb-3">
-                                                        {variant.attributes.map(
-                                                            (attr, i) => (
-                                                                <Badge
-                                                                    key={i}
-                                                                    variant="outline"
-                                                                    className="text-sm"
-                                                                >
-                                                                    <span className="font-bold text-blue-600">
-                                                                        {
-                                                                            attr.name
-                                                                        }
-                                                                        :
-                                                                    </span>
-                                                                    <span className="ml-1">
-                                                                        {
-                                                                            attr.value
-                                                                        }
-                                                                    </span>
-                                                                </Badge>
-                                                            ),
-                                                        )}
-                                                    </div>
-
-                                                    <div className="grid grid-cols-3 gap-3">
-                                                        <div className="col-span-1">
-                                                            <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 block">
-                                                                SKU *
-                                                            </label>
-                                                            <Input
-                                                                value={
-                                                                    variant.sku
-                                                                }
-                                                                onChange={(e) =>
-                                                                    updateGeneratedVariant(
-                                                                        index,
-                                                                        'sku',
-                                                                        e.target
-                                                                            .value,
-                                                                    )
-                                                                }
-                                                                placeholder="SKU"
-                                                                className="h-9"
-                                                            />
-                                                        </div>
-                                                        <div className="col-span-1">
-                                                            <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 block">
-                                                                Price ($) *
-                                                            </label>
-                                                            <Input
-                                                                type="number"
-                                                                step="0.01"
-                                                                min="0"
-                                                                value={
-                                                                    variant.price
-                                                                }
-                                                                onChange={(e) =>
-                                                                    updateGeneratedVariant(
-                                                                        index,
-                                                                        'price',
-                                                                        e.target
-                                                                            .value,
-                                                                    )
-                                                                }
-                                                                placeholder="0.00"
-                                                                className="h-9"
-                                                            />
-                                                        </div>
-                                                        <div className="col-span-1">
-                                                            <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 block">
-                                                                Stock
-                                                            </label>
-                                                            <Input
-                                                                type="number"
-                                                                min="0"
-                                                                value={
-                                                                    variant.stockQuantity
-                                                                }
-                                                                onChange={(e) =>
-                                                                    updateGeneratedVariant(
-                                                                        index,
-                                                                        'stockQuantity',
-                                                                        e.target
-                                                                            .value,
-                                                                    )
-                                                                }
-                                                                placeholder="0"
-                                                                className="h-9"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ),
-                                        )}
-                                    </div>
-                                </div>
-                            )}
+              {/* Step 3: Set Prices for Generated Variants */}
+              {generatedVariants.length > 0 && (
+                <div className='space-y-4'>
+                  <div className='flex items-center justify-between'>
+                    <h4 className='text-base font-bold text-gray-900 dark:text-white'>
+                      💰 Step 3: Set SKU & Price for Each Combination
+                    </h4>
+                    <Button
+                      onClick={() => {
+                        setGeneratedVariants([]);
+                        setAttributeDefinitions([]);
+                        setNewAttributeName('');
+                        setAttributeValueInputs({});
+                      }}
+                      variant='outline'
+                      size='sm'
+                    >
+                      Start Over
+                    </Button>
+                  </div>
+                  
+                  <div className='space-y-2 max-h-96 overflow-y-auto pr-2'>
+                    {generatedVariants.map((variant, index) => (
+                      <div key={variant.tempId} className='p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600'>
+                        <div className='flex flex-wrap gap-2 mb-3'>
+                          {variant.attributes.map((attr, i) => (
+                            <Badge key={i} variant='outline' className='text-sm'>
+                              <span className='font-bold text-blue-600'>{attr.name}:</span>
+                              <span className='ml-1'>{attr.value}</span>
+                            </Badge>
+                          ))}
                         </div>
-
-                        <div className="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
-                            <Button
-                                onClick={handleCloseModal}
-                                variant="outline"
-                                disabled={loading}
-                            >
-                                Cancel
-                            </Button>
-                            {generatedVariants.length > 0 && (
-                                <Button
-                                    onClick={handleSaveVariants}
-                                    disabled={loading}
-                                >
-                                    {loading
-                                        ? 'Saving...'
-                                        : `Save ${generatedVariants.length} Variants`}
-                                </Button>
-                            )}
+                        
+                        <div className='grid grid-cols-3 gap-3'>
+                          <div className='col-span-1'>
+                            <label className='text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 block'>
+                              SKU *
+                            </label>
+                            <Input
+                              value={variant.sku}
+                              onChange={(e) => updateGeneratedVariant(index, 'sku', e.target.value)}
+                              placeholder='SKU'
+                              className='h-9'
+                            />
+                          </div>
+                          <div className='col-span-1'>
+                            <label className='text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 block'>
+                              Price ($) *
+                            </label>
+                            <Input
+                              type='number'
+                              step='0.01'
+                              min='0'
+                              value={variant.price}
+                              onChange={(e) => updateGeneratedVariant(index, 'price', e.target.value)}
+                              placeholder='0.00'
+                              className='h-9'
+                            />
+                          </div>
+                          <div className='col-span-1'>
+                            <label className='text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 block'>
+                              Stock
+                            </label>
+                            <Input
+                              type='number'
+                              min='0'
+                              value={variant.stockQuantity}
+                              onChange={(e) => updateGeneratedVariant(index, 'stockQuantity', e.target.value)}
+                              placeholder='0'
+                              className='h-9'
+                            />
+                          </div>
                         </div>
-                    </div>
+                        
+                        {/* Variant Image URL */}
+                        <div className='mt-3'>
+                          <label className='text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 block'>
+                            🖼️ Variant Image URL (optional)
+                          </label>
+                          <Input
+                            value={variant.imageUrls?.[0] || ''}
+                            onChange={(e) => {
+                              const newImageUrls = e.target.value ? [e.target.value] : [];
+                              updateGeneratedVariant(index, 'imageUrls', newImageUrls);
+                            }}
+                            placeholder='https://example.com/variant-image.jpg'
+                            className='h-9'
+                          />
+                          <p className='text-xs text-gray-500 mt-1'>
+                            Add a specific image for this variant. If empty, product's general images will be shown.
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-            )}
+              )}
+            </div>
+            
+            <div className='flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700'>
+              <Button
+                onClick={handleCloseModal}
+                variant='outline'
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+              {generatedVariants.length > 0 && (
+                <Button onClick={handleSaveVariants} disabled={loading}>
+                  {loading ? 'Saving...' : `Save ${generatedVariants.length} Variants`}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
             {/* Delete Confirmation Dialog */}
             <AlertDialog

@@ -1,41 +1,72 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useCart, useOrders } from '@/hooks';
+import { useCart, useOrders, useAuth } from '@/hooks';
 import { ROUTES } from '@/config/routes';
+import { payByCash, getShippingFeeByUser } from '@/services';
 
 export const useCheckout = () => {
-    const navigate = useNavigate();
-    const {
-        cart,
-        cartItems,
-        cartSummary,
-        loading: cartLoading,
-        clearAllItems,
-    } = useCart();
-    const { checkoutCart, loading: orderLoading } = useOrders();
+  const navigate = useNavigate();
+  const { cart, cartItems, cartSummary, loading: cartLoading, clearAllItems } = useCart();
+  const { checkoutCart, loading: orderLoading } = useOrders();
+  const { user } = useAuth();
+  
+  const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('cashondelivery');
+  const [discountInfo, setDiscountInfo] = useState({
+    appliedCode: null,
+    discountAmount: 0,
+    isApplied: false,
+  });
+  const [loyaltyPointsUsed, setLoyaltyPointsUsed] = useState(0);
+  const [shippingFee, setShippingFee] = useState(0);
+  const [shippingLoading, setShippingLoading] = useState(false);
 
-    const [error, setError] = useState(null);
-    const [submitting, setSubmitting] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState('cashondelivery');
-    const [discountInfo, setDiscountInfo] = useState({
-        appliedCode: null,
-        discountAmount: 0,
-        isApplied: false,
-    });
-    const [loyaltyPointsUsed, setLoyaltyPointsUsed] = useState(0);
+  // Calculate totals
+  const subtotal = cartSummary.subtotal;
+  const discount = discountInfo.discountAmount || 0;
+  const total = Math.max(0, subtotal + shippingFee - discount - loyaltyPointsUsed);
 
-    // Calculate totals
-    const subtotal = cartSummary.subtotal;
-    const shipping = subtotal > 1000000 ? 0 : 50000; // Free shipping over 1,000,000 VND
-    const tax = subtotal * 0.1; // 10% tax
-    const discount = discountInfo.discountAmount || 0;
-    const total = Math.max(
-        0,
-        subtotal + shipping + tax - discount - loyaltyPointsUsed,
-    );
+  const loading = cartLoading || orderLoading;
 
-    const loading = cartLoading || orderLoading;
+  // Fetch shipping fee from backend when subtotal changes or user logs in
+  useEffect(() => {
+    const fetchShippingFee = async () => {
+      if (subtotal === 0) {
+        setShippingFee(0);
+        return;
+      }
+
+      try {
+        setShippingLoading(true);
+        
+        if (user?._id) {
+          // For logged-in users
+          const response = await getShippingFeeByUser(user._id, {
+            orderValue: subtotal,
+            deliveryType: 'standard',
+          });
+          
+          if (response.success) {
+            setShippingFee(response.fee || 0);
+          }
+        } else {
+          // For guests, estimate based on threshold (will be calculated accurately at checkout)
+          // Backend gives free shipping at 500k
+          setShippingFee(subtotal >= 500000 ? 0 : 50000);
+        }
+      } catch (err) {
+        console.error('Error fetching shipping fee:', err);
+        // Fallback to estimated fee
+        setShippingFee(subtotal >= 500000 ? 0 : 50000);
+      } finally {
+        setShippingLoading(false);
+      }
+    };
+
+    fetchShippingFee();
+  }, [subtotal, user]);
 
     const handlePaymentMethodChange = (method) => {
         setPaymentMethod(method);
@@ -102,31 +133,38 @@ export const useCheckout = () => {
             // Get order ID - handle both _id and id formats
             const orderId = order._id || order.id;
 
-            // Redirect based on payment method
-            if (paymentMethod === 'cashondelivery') {
-                // COD - show success and go to order detail
-                toast.success('Order placed successfully!', {
-                    description: `Order #${orderId}`,
-                });
-                navigate(`/orders/${orderId}`, {
-                    state: { orderSuccess: true },
-                });
-            } else {
-                // Online payment - redirect to payment page without showing success toast yet
-                navigate(`/payment/${orderId}`);
-            }
+      // Redirect based on payment method
+      if (paymentMethod === 'cod') {
+        try {
+          await payByCash(orderId);
         } catch (err) {
-            console.error('Error submitting order:', err);
-            const errorMessage =
-                err.message || 'Failed to submit order. Please try again.';
-            setError(errorMessage);
-            toast.error('Order failed', {
-                description: errorMessage,
-            });
-        } finally {
-            setSubmitting(false);
+          console.error('payByCash error:', err);
+          // vẫn tiếp tục, chỉ cảnh báo
+          toast.warning('Đặt COD nhưng chưa ghi nhận trạng thái thanh toán. Vui lòng kiểm tra đơn.');
         }
-    };
+
+        // COD - show success and go to order detail
+        toast.success('Order placed successfully!', {
+          description: `Order #${orderId}`,
+        });
+        navigate(`/orders/${orderId}`, {
+          state: { orderSuccess: true },
+        });
+      } else {
+        // Online payment - redirect to payment page without showing success toast yet
+        navigate(`/payment/${orderId}`);
+      }
+    } catch (err) {
+      console.error('Error submitting order:', err);
+      const errorMessage = err.message || 'Failed to submit order. Please try again.';
+      setError(errorMessage);
+      toast.error('Order failed', {
+        description: errorMessage,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
     const handleDiscountApplied = (info) => {
         setDiscountInfo(info);
@@ -136,21 +174,20 @@ export const useCheckout = () => {
         setLoyaltyPointsUsed(points);
     };
 
-    return {
-        cartItems,
-        paymentMethod,
-        subtotal,
-        shipping,
-        tax,
-        discount: discountInfo.discountAmount || 0,
-        loyaltyPointsDiscount: loyaltyPointsUsed,
-        total,
-        loading,
-        error,
-        submitting,
-        handlePaymentMethodChange,
-        handleSubmitOrder,
-        handleDiscountApplied,
-        handlePointsApplied,
-    };
+  return {
+    cartItems,
+    paymentMethod,
+    subtotal,
+    shipping: shippingFee,
+    discount: discountInfo.discountAmount || 0,
+    loyaltyPointsDiscount: loyaltyPointsUsed,
+    total,
+    loading: loading || shippingLoading,
+    error,
+    submitting,
+    handlePaymentMethodChange,
+    handleSubmitOrder,
+    handleDiscountApplied,
+    handlePointsApplied,
+  };
 };

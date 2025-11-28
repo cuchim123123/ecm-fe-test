@@ -5,8 +5,10 @@ export * from './cart.service';
 export * from './reviews.service';
 export * from './discountCodes.service';
 export * from './categories.service';
+export * from './dashboard.service';
 export * from './addresses.service';
 export * from './payments.service';
+export * from './shipping.service';
 export * from './config';
 export * from '../utils/apiHelpers';
 export * from '../utils/authHelpers';
@@ -19,17 +21,21 @@ import * as cartService from './cart.service';
 import * as reviewsService from './reviews.service';
 import * as discountCodesService from './discountCodes.service';
 import * as categoriesService from './categories.service';
+import * as dashboardService from './dashboard.service';
 import * as addressesService from './addresses.service';
 import * as paymentsService from './payments.service';
+import * as shippingService from './shipping.service';
 
 export default {
-    products: productsService,
-    users: usersService,
-    orders: ordersService,
-    cart: cartService,
-    reviews: reviewsService,
-    discountCodes: discountCodesService,
-    categories: categoriesService,
-    addresses: addressesService,
-    payments: paymentsService,
+  products: productsService,
+  users: usersService,
+  orders: ordersService,
+  cart: cartService,
+  reviews: reviewsService,
+  discountCodes: discountCodesService,
+  categories: categoriesService,
+  dashboard: dashboardService,
+  addresses: addressesService,
+  payments: paymentsService,
+  shipping: shippingService,
 };

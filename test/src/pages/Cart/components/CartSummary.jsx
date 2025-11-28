@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { formatPrice } from '@/utils/formatPrice';
+import { getShippingFeeByUser } from '@/services';
+import { useAuth } from '@/hooks';
 import './CartSummary.css';
 
 const CartSummary = ({ subtotal, onCheckout, onContinueShopping }) => {
@@ -31,16 +33,12 @@ const CartSummary = ({ subtotal, onCheckout, onContinueShopping }) => {
                         🎉 You got free shipping!
                     </p>
                 )}
-                {shipping > 0 && subtotal < 1000000 && (
+                {shipping > 0 && subtotal < 500000 && (
                     <p className="free-shipping-notice">
-                        Add {formatPrice(1000000 - subtotal)} more for free
-                        shipping
+                        Add {formatPrice(500000 - subtotal)} more for free shipping
                     </p>
                 )}
-                <div className="summary-row">
-                    <span>Tax (10%)</span>
-                    <span>{formatPrice(tax)}</span>
-                </div>
+                
                 <div className="summary-row summary-total">
                     <span>Total</span>
                     <span>{formatPrice(total)}</span>

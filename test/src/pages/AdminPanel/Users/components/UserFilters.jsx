@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { X, Shield, CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from 'react'
+import { X, Shield, CheckCircle, ArrowUpDown } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
     Select,
     SelectContent,
@@ -110,65 +110,56 @@ const UserFilters = ({
         onFilterChange({ ...filters, [key]: value });
     };
 
-    const hasActiveFilters = Object.values(filters).some(
-        (v) => v && v !== 'all',
-    );
+  const hasActiveFilters = Object.entries(filters).some(([key, value]) => {
+    if (key === 'sortBy') return value && value !== 'none'
+    return value && value !== 'all'
+  })
 
-    return (
-        <div className="mb-4">
-            {/* Clear Filters Button */}
-            {hasActiveFilters && (
-                <div className="flex justify-end mb-2">
-                    <Button
-                        variant="ghost"
-                        onClick={onClearFilters}
-                        className="flex items-center gap-2 text-red-600 hover:text-red-700"
-                    >
-                        <X className="w-4 h-4" />
-                        Clear All Filters
-                    </Button>
-                </div>
-            )}
+  return (
+    <div className='mb-4'>
+      {/* Clear Filters Button */}
+      {hasActiveFilters && (
+        <div className='flex justify-end mb-2'>
+          <Button
+            variant='ghost'
+            onClick={onClearFilters}
+            className='flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50'
+          >
+            <X className='w-4 h-4' />
+            Clear All Filters
+          </Button>
+        </div>
+      )}
 
-            {/* Filter Panel */}
-            {showFilters && (
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-4 mb-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {/* Role Filter */}
-                        <div className="space-y-2">
-                            <Label className="flex items-center gap-2 text-sm font-medium">
-                                <Shield className="w-4 h-4" />
-                                Role
-                            </Label>
-                            <Select
-                                value={filters.role || 'all'}
-                                onValueChange={(v) => handleChange('role', v)}
-                                disabled={loadingRoles}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue
-                                        placeholder={
-                                            loadingRoles
-                                                ? 'Loading roles...'
-                                                : 'All Roles'
-                                        }
-                                    />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">
-                                        All Roles
-                                    </SelectItem>
-                                    {availableRoles.map((role) => (
-                                        <SelectItem
-                                            key={role.value}
-                                            value={role.value}
-                                        >
-                                            {role.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+      {/* Filter Panel */}
+      {showFilters && (
+        <div className='p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-4 mb-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4'>
+            
+            {/* Role Filter */}
+            <div className='space-y-2'>
+              <Label className='flex items-center gap-2 text-sm font-medium'>
+                <Shield className='w-4 h-4' />
+                Role
+              </Label>
+              <Select 
+                value={filters.role || 'all'} 
+                onValueChange={(v) => handleChange('role', v)}
+                disabled={loadingRoles}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={loadingRoles ? 'Loading roles...' : 'All Roles'} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>All Roles</SelectItem>
+                  {availableRoles.map(role => (
+                    <SelectItem key={role.value} value={role.value}>
+                      {role.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
                         {/* Verification Status Filter */}
                         <div className="space-y-2">
@@ -199,81 +190,86 @@ const UserFilters = ({
                             </Select>
                         </div>
 
-                        {/* Social Provider Filter */}
-                        <div className="space-y-2">
-                            <Label className="flex items-center gap-2 text-sm font-medium">
-                                <Shield className="w-4 h-4" />
-                                Login Method
-                            </Label>
-                            <Select
-                                value={filters.socialProvider || 'all'}
-                                onValueChange={(v) =>
-                                    handleChange('socialProvider', v)
-                                }
-                                disabled={loadingProviders}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue
-                                        placeholder={
-                                            loadingProviders
-                                                ? 'Loading...'
-                                                : 'All Methods'
-                                        }
-                                    />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">
-                                        All Methods
-                                    </SelectItem>
-                                    {availableProviders.map((provider) => (
-                                        <SelectItem
-                                            key={provider.value}
-                                            value={provider.value}
-                                        >
-                                            {provider.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
+            {/* Social Provider Filter */}
+            <div className='space-y-2'>
+              <Label className='flex items-center gap-2 text-sm font-medium'>
+                <Shield className='w-4 h-4' />
+                Login Method
+              </Label>
+              <Select 
+                value={filters.socialProvider || 'all'} 
+                onValueChange={(v) => handleChange('socialProvider', v)}
+                disabled={loadingProviders}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={loadingProviders ? 'Loading...' : 'All Methods'} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>All Methods</SelectItem>
+                  {availableProviders.map(provider => (
+                    <SelectItem key={provider.value} value={provider.value}>
+                      {provider.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-                    {/* Active Filters Summary */}
-                    {hasActiveFilters && (
-                        <div className="pt-4 border-t border-gray-300">
-                            <div className="flex flex-wrap gap-2">
-                                <span className="text-sm font-medium text-gray-700">
-                                    Active Filters:
-                                </span>
-                                {filters.role && filters.role !== 'all' && (
-                                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs capitalize">
-                                        Role: {filters.role}
-                                    </span>
-                                )}
-                                {filters.isVerified &&
-                                    filters.isVerified !== 'all' && (
-                                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
-                                            {filters.isVerified === 'true'
-                                                ? 'Verified'
-                                                : 'Unverified'}
-                                        </span>
-                                    )}
-                                {filters.socialProvider &&
-                                    filters.socialProvider !== 'all' && (
-                                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs capitalize">
-                                            Login:{' '}
-                                            {filters.socialProvider === 'local'
-                                                ? 'Email/Password'
-                                                : filters.socialProvider}
-                                        </span>
-                                    )}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            )}
+            {/* Sort by Loyalty Points */}
+            <div className='space-y-2'>
+              <Label className='flex items-center gap-2 text-sm font-medium'>
+                <ArrowUpDown className='w-4 h-4' />
+                Sort by Points
+              </Label>
+              <Select 
+                value={filters.sortBy || 'none'} 
+                onValueChange={(v) => handleChange('sortBy', v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='No Sorting' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='none'>No Sorting</SelectItem>
+                  <SelectItem value='points-high'>Highest Points First</SelectItem>
+                  <SelectItem value='points-low'>Lowest Points First</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+          </div>
+
+          {/* Active Filters Summary */}
+          {hasActiveFilters && (
+            <div className='pt-4 border-t border-gray-300'>
+              <div className='flex flex-wrap gap-2'>
+                <span className='text-sm font-medium text-gray-700'>Active Filters:</span>
+                {filters.role && filters.role !== 'all' && (
+                  <span className='px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs capitalize'>
+                    Role: {filters.role}
+                  </span>
+                )}
+                {filters.isVerified && filters.isVerified !== 'all' && (
+                  <span className='px-2 py-1 bg-green-100 text-green-700 rounded text-xs'>
+                    {filters.isVerified === 'true' ? 'Verified' : 'Unverified'}
+                  </span>
+                )}
+                {filters.socialProvider && filters.socialProvider !== 'all' && (
+                  <span className='px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs capitalize'>
+                    Login: {filters.socialProvider === 'local' ? 'Email/Password' : filters.socialProvider}
+                  </span>
+                )}
+                {filters.sortBy && filters.sortBy !== 'none' && (
+                  <span className='px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs'>
+                    Sort: {filters.sortBy === 'points-high' ? 'Highest Points' : 'Lowest Points'}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
-    );
-};
+      )}
+    </div>
+  )
+}
 
 export default UserFilters;

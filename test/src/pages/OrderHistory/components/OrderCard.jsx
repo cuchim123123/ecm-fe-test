@@ -13,6 +13,8 @@ import { Button } from '@/components/ui/button';
 import Badge from '@/components/ui/badge';
 import { formatPrice } from '@/utils/formatPrice';
 import { ROUTES } from '@/config/routes';
+import { useOrders } from '@/hooks';
+import { toast } from 'sonner';
 import './OrderCard.css';
 
 // Helper to parse MongoDB Decimal128
@@ -25,8 +27,10 @@ const parseDecimal = (value) => {
 };
 
 const OrderCard = ({ order }) => {
-    const [expanded, setExpanded] = useState(false);
-    const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const navigate = useNavigate();
+  const { cancelCurrentOrder } = useOrders();
 
     const getStatusIcon = (status) => {
         switch (status.toLowerCase()) {
@@ -72,9 +76,30 @@ const OrderCard = ({ order }) => {
         });
     };
 
-    const handleViewDetails = () => {
-        navigate(`${ROUTES.ORDER_HISTORY}/${order._id}`);
-    };
+  const handleViewDetails = () => {
+    navigate(`${ROUTES.ORDER_HISTORY}/${order._id}`);
+  };
+
+  const handleCancelOrder = async () => {
+    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+
+    try {
+      setCancelling(true);
+      await cancelCurrentOrder(order._id);
+      toast.success('Order cancelled successfully');
+      // Optionally trigger a refresh or update parent component
+    } catch (err) {
+      console.error('Failed to cancel order:', err);
+      toast.error(err.message || 'Failed to cancel order');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  const handleBuyAgain = () => {
+    // Navigate to products or add items back to cart
+    toast.info('Buy Again feature coming soon!');
+  };
 
     const totalAmount = parseDecimal(order.totalAmount);
     const shippingFee = parseDecimal(order.shippingFee);
@@ -230,31 +255,31 @@ const OrderCard = ({ order }) => {
                         </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="order-actions">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleViewDetails}
-                        >
-                            View Details
-                        </Button>
-                        {order.status.toLowerCase() === 'delivered' && (
-                            <Button variant="outline" size="sm">
-                                Buy Again
-                            </Button>
-                        )}
-                        {(order.status.toLowerCase() === 'pending' ||
-                            order.status.toLowerCase() === 'confirmed') && (
-                            <Button variant="destructive" size="sm">
-                                Cancel Order
-                            </Button>
-                        )}
-                    </div>
-                </div>
+          {/* Actions */}
+          <div className="order-actions">
+            <Button variant="outline" size="sm" onClick={handleViewDetails}>
+              View Details
+            </Button>
+            {order.status.toLowerCase() === 'delivered' && (
+              <Button variant="outline" size="sm" onClick={handleBuyAgain}>
+                Buy Again
+              </Button>
             )}
+            {(order.status.toLowerCase() === 'pending' || order.status.toLowerCase() === 'confirmed') && (
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                onClick={handleCancelOrder}
+                disabled={cancelling}
+              >
+                {cancelling ? 'Cancelling...' : 'Cancel Order'}
+              </Button>
+            )}
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default OrderCard;

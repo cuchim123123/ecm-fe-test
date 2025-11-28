@@ -2,14 +2,14 @@
 
 /* Backdrop */
 .search-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    animation: fadeIn 0.2s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1500;
+  animation: fadeIn 0.2s ease;
 }
 
 @keyframes fadeIn {
@@ -30,14 +30,14 @@
 }
 
 .advanced-search-container.expanded {
-    position: fixed;
-    top: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1001;
-    max-width: 700px;
-    width: calc(100% - 2rem);
-    animation: expandFromOriginal 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  position: fixed;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1500;
+  max-width: 700px;
+  width: calc(100% - 2rem);
+  animation: expandFromOriginal 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 @keyframes expandFromOriginal {
@@ -116,17 +116,17 @@
 
 /* Dropdown Panel */
 .search-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border-radius: 0 0 0.75rem 0.75rem;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    max-height: calc(100vh - 8rem);
-    overflow-y: auto;
-    animation: slideDown 0.2s ease;
-    z-index: 999;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 0 0 0.75rem 0.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
+  animation: slideDown 0.2s ease;
+  z-index: 1100;
 }
 
 @keyframes slideDown {

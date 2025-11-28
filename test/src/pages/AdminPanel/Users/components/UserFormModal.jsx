@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -124,20 +125,17 @@ const UserFormModal = ({ user, isOpen, onClose, onSave, mode = 'create' }) => {
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                        {mode === 'create' ? 'Add New User' : 'Edit User'}
-                    </h2>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-                </div>
+  return createPortal(
+    <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] p-4'>
+      <div className='bg-white dark:bg-gray-800 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+        <div className='sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between'>
+          <h2 className='text-xl font-semibold text-gray-900 dark:text-white'>
+            {mode === 'create' ? 'Add New User' : 'Edit User'}
+          </h2>
+          <button onClick={onClose} className='text-gray-400 hover:text-gray-600'>
+            <X className='w-6 h-6' />
+          </button>
+        </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
                     {/* Basic Info */}
@@ -328,33 +326,21 @@ const UserFormModal = ({ user, isOpen, onClose, onSave, mode = 'create' }) => {
                         </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={onClose}
-                            disabled={saving}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={saving}
-                            className="bg-blue-600 hover:bg-blue-700"
-                        >
-                            <Save className="w-4 h-4 mr-2" />
-                            {saving
-                                ? 'Saving...'
-                                : mode === 'create'
-                                  ? 'Create User'
-                                  : 'Save Changes'}
-                        </Button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
+          {/* Action Buttons */}
+          <div className='flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700'>
+            <Button type='button' variant='outline' onClick={onClose} disabled={saving}>
+              Cancel
+            </Button>
+            <Button type='submit' disabled={saving} className='bg-blue-600 hover:bg-blue-700'>
+              <Save className='w-4 h-4 mr-2' />
+              {saving ? 'Saving...' : mode === 'create' ? 'Create User' : 'Save Changes'}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body
+  );
 };
 
 export default UserFormModal;

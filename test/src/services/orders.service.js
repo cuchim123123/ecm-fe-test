@@ -20,8 +20,8 @@ export const getMyOrders = async (params = {}) => {
 
 // Get all orders (admin only) - using query params to differentiate
 export const getAllOrders = async (params = {}) => {
-    const response = await apiClient.get('/orders', { params });
-    return response;
+  const response = await apiClient.get('/orders/admin/all', { params });
+  return response;
 };
 
 // Get single order detail
@@ -72,17 +72,24 @@ export const updateOrderStatus = async (orderId, status) => {
 
 // Cancel order (user/guest can cancel their own pending orders)
 export const cancelOrder = async (orderId) => {
-    const response = await apiClient.put(`/orders/${orderId}/cancel`);
-    return response;
+  const response = await apiClient.put(`/orders/${orderId}/cancel`);
+  return response;
+};
+
+// Get orders by discount code ID (admin only)
+export const getOrdersByDiscountCode = async (discountCodeId) => {
+  const response = await apiClient.get(`/orders/discount/${discountCodeId}`);
+  return response;
 };
 
 export default {
-    getMyOrders,
-    getAllOrders,
-    getOrderById,
-    createOrder,
-    checkoutFromCart,
-    guestCheckoutFromCart,
-    updateOrderStatus,
-    cancelOrder,
+  getMyOrders,
+  getAllOrders,
+  getOrderById,
+  createOrder,
+  checkoutFromCart,
+  guestCheckoutFromCart,
+  updateOrderStatus,
+  cancelOrder,
+  getOrdersByDiscountCode,
 };

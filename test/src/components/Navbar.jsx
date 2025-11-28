@@ -25,7 +25,7 @@ import './Navbar.css';
 
 // Navigation links configuration
 const NAV_LINKS = [
-    { to: '/products', label: 'PRODUCTS', icon: Box },
+    { to: '/products', label: 'SHOP', icon: Box },
     { to: '/categories', label: 'CATEGORIES', icon: Layers }, // Different path for unique key
     { to: '/about', label: 'ABOUT', icon: Info },
     { to: '/contact', label: 'CONTACT', icon: Phone },
@@ -352,7 +352,7 @@ const Navbar = () => {
                             <hr className="w-2/4 border-none h-[1.5px] bg-gray-700 hidden" />
 
                             {/* Mega Dropdown Menu */}
-                            <div className="group-hover:block hidden absolute top-full left-1/2 -translate-x-1/2 pt-4 z-50">
+                            <div className="group-hover:block hidden absolute top-full left-1/2 -translate-x-1/2 pt-4 z-[1100]">
                                 <div className="bg-white rounded-xl shadow-2xl border border-gray-100 p-6 min-w-[800px] max-w-[1000px]">
                                     <div className="grid grid-cols-4 gap-3">
                                         {categories
@@ -497,10 +497,10 @@ const Navbar = () => {
 
     // Render user dropdown menu
     const renderUserMenu = () => (
-        <div className="group relative">
-            <User className="w-5 cursor-pointer hover:text-gray-900 transition-colors" />
-            <div className="group-hover:block z-10 hidden absolute dropdown-menu right-0 pt-4">
-                <div className="flex flex-col w-56 py-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+        <div className='group relative'>
+            <User className='w-5 cursor-pointer hover:text-gray-900 transition-colors' />
+            <div className='group-hover:block z-[1100] hidden absolute dropdown-menu right-0 pt-4'>
+                <div className='flex flex-col w-56 py-2 bg-white border border-gray-200 rounded-lg shadow-lg'>
                     {user ? (
                         <>
                             <div className="px-4 py-3 border-b border-gray-100">

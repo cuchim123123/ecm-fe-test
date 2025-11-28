@@ -8,17 +8,16 @@ import LoyaltyPointsInput from './LoyaltyPointsInput';
 import './OrderSummary.css';
 
 const OrderSummary = ({
-    cartItems,
-    subtotal,
-    shipping,
-    tax,
-    discount,
-    loyaltyPointsDiscount = 0,
-    total,
-    onSubmit,
-    submitting,
-    onDiscountApplied,
-    onPointsApplied,
+  cartItems,
+  subtotal,
+  shipping,
+  discount,
+  loyaltyPointsDiscount = 0,
+  total,
+  onSubmit,
+  submitting,
+  onDiscountApplied,
+  onPointsApplied,
 }) => {
     return (
         <Card className="order-summary-card">
@@ -93,47 +92,33 @@ const OrderSummary = ({
                 currentTotal={total}
             />
 
-            {/* Price Breakdown */}
-            <div className="order-totals">
-                <div key="subtotal" className="order-total-row">
-                    <span>Subtotal</span>
-                    <span>{formatPrice(subtotal)}</span>
-                </div>
-                <div key="shipping" className="order-total-row">
-                    <span>Shipping</span>
-                    <span>{formatPrice(shipping)}</span>
-                </div>
-                <div key="tax" className="order-total-row">
-                    <span>Tax</span>
-                    <span>{formatPrice(tax)}</span>
-                </div>
-                {discount > 0 && (
-                    <div
-                        key="discount"
-                        className="order-total-row order-discount"
-                    >
-                        <span>Discount</span>
-                        <span className="discount-value">
-                            -{formatPrice(discount)}
-                        </span>
-                    </div>
-                )}
-                {loyaltyPointsDiscount > 0 && (
-                    <div
-                        key="loyalty-points"
-                        className="order-total-row order-points-discount"
-                    >
-                        <span>Loyalty Points</span>
-                        <span className="points-discount-value">
-                            -{formatPrice(loyaltyPointsDiscount)}
-                        </span>
-                    </div>
-                )}
-                <div key="total" className="order-total-row order-total-final">
-                    <span>Total</span>
-                    <span>{formatPrice(total)}</span>
-                </div>
-            </div>
+      {/* Price Breakdown */}
+      <div className="order-totals">
+        <div className="order-total-row">
+          <span>Subtotal</span>
+          <span>{formatPrice(subtotal)}</span>
+        </div>
+        <div className="order-total-row">
+          <span>Shipping</span>
+          <span>{shipping === 0 ? 'FREE' : formatPrice(shipping)}</span>
+        </div>
+        {discount > 0 && (
+          <div className="order-total-row order-discount">
+            <span>Discount</span>
+            <span className="discount-value">-{formatPrice(discount)}</span>
+          </div>
+        )}
+        {loyaltyPointsDiscount > 0 && (
+          <div className="order-total-row order-points-discount">
+            <span>Loyalty Points</span>
+            <span className="points-discount-value">-{formatPrice(loyaltyPointsDiscount)}</span>
+          </div>
+        )}
+        <div className="order-total-row order-total-final">
+          <span>Total</span>
+          <span>{formatPrice(total)}</span>
+        </div>
+      </div>
 
             {/* Submit Button */}
             <Button

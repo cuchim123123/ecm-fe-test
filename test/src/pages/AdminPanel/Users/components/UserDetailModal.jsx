@@ -1,19 +1,7 @@
-import React from 'react';
-import {
-    X,
-    Mail,
-    Phone,
-    Calendar,
-    Award,
-    Shield,
-    CheckCircle,
-    XCircle,
-} from 'lucide-react';
-import {
-    formatDateTime,
-    formatPhone,
-    getRoleBadgeColor,
-} from '../utils/formatters';
+import React from 'react'
+import { createPortal } from 'react-dom'
+import { X, Mail, Phone, Calendar, Award, Shield, CheckCircle, XCircle } from 'lucide-react'
+import { formatDateTime, formatPhone, getRoleBadgeColor } from '../utils/formatters'
 
 const UserDetailModal = ({ user, onClose, onEdit, onDelete }) => {
     const handleEdit = () => {
@@ -24,21 +12,19 @@ const UserDetailModal = ({ user, onClose, onEdit, onDelete }) => {
         onDelete(user._id);
     };
 
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                {/* Header */}
-                <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between items-center z-10">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                        User Details
-                    </h2>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-                </div>
+  return createPortal(
+    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[2000] p-4'>
+      <div className='bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto'>
+        {/* Header */}
+        <div className='sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between items-center z-10'>
+          <h2 className='text-xl font-bold text-gray-900 dark:text-white'>User Details</h2>
+          <button 
+            onClick={onClose}
+            className='text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors'
+          >
+            <X className='w-6 h-6' />
+          </button>
+        </div>
 
                 {/* Content */}
                 <div className="p-6">
@@ -219,31 +205,32 @@ const UserDetailModal = ({ user, onClose, onEdit, onDelete }) => {
                         </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                        <button
-                            onClick={handleEdit}
-                            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                        >
-                            Edit User
-                        </button>
-                        <button
-                            onClick={handleDelete}
-                            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-                        >
-                            Delete User
-                        </button>
-                        <button
-                            onClick={onClose}
-                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium dark:bg-gray-600 dark:text-gray-200"
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            </div>
+          {/* Action Buttons */}
+          <div className='flex gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700'>
+            <button 
+              onClick={handleEdit}
+              className='flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium'
+            >
+              Edit User
+            </button>
+            <button 
+              onClick={handleDelete}
+              className='flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium'
+            >
+              Delete User
+            </button>
+            <button 
+              onClick={onClose}
+              className='px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium dark:bg-gray-600 dark:text-gray-200'
+            >
+              Close
+            </button>
+          </div>
         </div>
-    );
-};
+      </div>
+    </div>,
+    document.body
+  )
+}
 
 export default UserDetailModal;

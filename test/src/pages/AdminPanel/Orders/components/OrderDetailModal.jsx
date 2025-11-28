@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { X, Package, MapPin, CreditCard, Tag } from 'lucide-react';
-import { getOrderById } from '@/services/orders.service';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import Badge from '@/components/ui/badge';
+import React, { useState, useEffect } from 'react'
+import { X, Package, MapPin, CreditCard, Tag } from 'lucide-react'
+import { getOrderById } from '@/services/orders.service'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+import Badge from '@/components/ui/badge'
+import { formatPrice } from '@/utils/formatPrice'
 import {
     Dialog,
     DialogContent,
@@ -132,188 +133,129 @@ const OrderDetailModal = ({ order, onClose, onStatusUpdate }) => {
                         </p>
                     </div>
 
-                    {/* Delivery Address */}
-                    {orderData.addressId && (
-                        <div className="border rounded-lg p-4 space-y-2">
-                            <h3 className="font-semibold mb-2 flex items-center gap-2">
-                                <MapPin size={18} />
-                                Delivery Address
-                            </h3>
-                            <div className="text-sm space-y-1">
-                                {typeof orderData.addressId === 'object' ? (
-                                    <>
-                                        <p>
-                                            <strong>Recipient:</strong>{' '}
-                                            {orderData.addressId
-                                                .fullNameOfReceiver || 'N/A'}
-                                        </p>
-                                        <p>
-                                            <strong>Phone:</strong>{' '}
-                                            {orderData.addressId.phone || 'N/A'}
-                                        </p>
-                                        <p>
-                                            <strong>Address:</strong>{' '}
-                                            {orderData.addressId.addressLine ||
-                                                'N/A'}
-                                        </p>
-                                        {orderData.addressId.lat &&
-                                            orderData.addressId.lng && (
-                                                <p>
-                                                    <strong>
-                                                        Coordinates:
-                                                    </strong>{' '}
-                                                    {orderData.addressId.lat},{' '}
-                                                    {orderData.addressId.lng}
-                                                </p>
-                                            )}
-                                    </>
-                                ) : (
-                                    <p>Address details not available</p>
-                                )}
-                            </div>
-                        </div>
-                    )}
+          {/* Delivery Address */}
+          <div className="border rounded-lg p-4 space-y-2">
+            <h3 className="font-semibold mb-2 flex items-center gap-2">
+              <MapPin size={18} />
+              Delivery Address
+            </h3>
+            <div className="text-sm space-y-1">
+              {orderData.addressId && typeof orderData.addressId === 'object' ? (
+                <>
+                  <p><strong>Recipient:</strong> {orderData.addressId.fullNameOfReceiver || 'N/A'}</p>
+                  <p><strong>Phone:</strong> {orderData.addressId.phone || 'N/A'}</p>
+                  <p><strong>Address:</strong> {orderData.addressId.addressLine || 'N/A'}</p>
+                  {orderData.addressId.lat && orderData.addressId.lng && (
+                    <p><strong>Coordinates:</strong> {orderData.addressId.lat}, {orderData.addressId.lng}</p>
+                  )}
+                </>
+              ) : (
+                <p className="text-muted-foreground italic">Address details not available (ID: {orderData.addressId || 'N/A'})</p>
+              )}
+            </div>
+          </div>
 
-                    {/* Order Items */}
-                    <div className="border rounded-lg p-4">
-                        <h3 className="font-semibold mb-3">Order Items</h3>
-                        <div className="space-y-3">
-                            {orderData.items?.map((item, index) => {
-                                const itemSubtotal = item.subtotal
-                                    ?.$numberDecimal
-                                    ? parseFloat(item.subtotal.$numberDecimal)
-                                    : parseFloat(item.subtotal || 0);
-
-                                return (
-                                    <div
-                                        key={index}
-                                        className="flex justify-between items-center py-2 border-b last:border-b-0"
-                                    >
-                                        <div>
-                                            <p className="font-medium">
-                                                {item.productId?.name ||
-                                                    'Product'}
-                                            </p>
-                                            {item.variantId && (
-                                                <p className="text-xs text-muted-foreground">
-                                                    Variant:{' '}
-                                                    {item.variantId.color || ''}{' '}
-                                                    {item.variantId.size || ''}
-                                                </p>
-                                            )}
-                                            <p className="text-sm text-muted-foreground">
-                                                Quantity: {item.quantity}
-                                            </p>
-                                        </div>
-                                        <p className="font-semibold">
-                                            ${itemSubtotal.toFixed(2)}
-                                        </p>
-                                    </div>
-                                );
-                            })}
-                        </div>
+          {/* Order Items */}
+          <div className="border rounded-lg p-4">
+            <h3 className="font-semibold mb-3">Order Items</h3>
+            <div className="space-y-3">
+              {orderData.items?.map((item, index) => {
+                const itemSubtotal = item.subtotal?.$numberDecimal 
+                  ? parseFloat(item.subtotal.$numberDecimal) 
+                  : parseFloat(item.subtotal || 0);
+                
+                return (
+                  <div key={index} className="flex justify-between items-center py-2 border-b last:border-b-0">
+                    <div>
+                      <p className="font-medium">{item.productId?.name || 'Product'}</p>
+                      {item.variantId && (
+                        <p className="text-xs text-muted-foreground">
+                          Variant: {item.variantId.color || ''} {item.variantId.size || ''}
+                        </p>
+                      )}
+                      <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
                     </div>
+                    <p className="font-semibold">{formatPrice(itemSubtotal)}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
-                    {/* Payment Summary */}
-                    <div className="border rounded-lg p-4 space-y-2">
-                        <h3 className="font-semibold mb-2 flex items-center gap-2">
-                            <CreditCard size={18} />
-                            Payment Summary
-                        </h3>
-                        <div className="space-y-1 text-sm">
-                            <div className="flex justify-between">
-                                <span>Delivery Type:</span>
-                                <span className="font-medium">
-                                    {orderData.deliveryType === 'express'
-                                        ? 'Express'
-                                        : 'Standard'}
-                                </span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Shipping Fee:</span>
-                                <span className="font-medium">
-                                    $
-                                    {parseFloat(
-                                        orderData.shippingFee?.$numberDecimal ||
-                                            orderData.shippingFee ||
-                                            0,
-                                    ).toFixed(2)}
-                                </span>
-                            </div>
-                            {orderData.discountAmount &&
-                                parseFloat(
-                                    orderData.discountAmount?.$numberDecimal ||
-                                        orderData.discountAmount ||
-                                        0,
-                                ) > 0 && (
-                                    <div className="flex justify-between text-green-600">
-                                        <span className="flex items-center gap-1">
-                                            <Tag size={14} />
-                                            Discount Code:
-                                        </span>
-                                        <span className="font-medium">
-                                            -$
-                                            {parseFloat(
-                                                orderData.discountAmount
-                                                    ?.$numberDecimal ||
-                                                    orderData.discountAmount ||
-                                                    0,
-                                            ).toFixed(2)}
-                                        </span>
-                                    </div>
-                                )}
-                            {orderData.voucherDiscount &&
-                                parseFloat(
-                                    orderData.voucherDiscount?.$numberDecimal ||
-                                        orderData.voucherDiscount ||
-                                        0,
-                                ) > 0 && (
-                                    <div className="flex justify-between text-green-600">
-                                        <span className="flex items-center gap-1">
-                                            <Tag size={14} />
-                                            Voucher Discount:
-                                        </span>
-                                        <span className="font-medium">
-                                            -$
-                                            {parseFloat(
-                                                orderData.voucherDiscount
-                                                    ?.$numberDecimal ||
-                                                    orderData.voucherDiscount ||
-                                                    0,
-                                            ).toFixed(2)}
-                                        </span>
-                                    </div>
-                                )}
-                            {orderData.pointsUsed > 0 && (
-                                <div className="flex justify-between text-green-600">
-                                    <span>Points Used:</span>
-                                    <span className="font-medium">
-                                        {orderData.pointsUsed} pts (-$
-                                        {orderData.pointsUsed.toFixed(2)})
-                                    </span>
-                                </div>
-                            )}
-                            {orderData.pointsEarned > 0 && (
-                                <div className="flex justify-between text-blue-600">
-                                    <span>Points Earned:</span>
-                                    <span className="font-medium">
-                                        +{orderData.pointsEarned} pts
-                                    </span>
-                                </div>
-                            )}
-                            <div className="flex justify-between pt-2 border-t font-bold text-lg">
-                                <span>Total:</span>
-                                <span>
-                                    $
-                                    {parseFloat(
-                                        orderData.totalAmount?.$numberDecimal ||
-                                            orderData.totalAmount ||
-                                            0,
-                                    ).toFixed(2)}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+          {/* Payment Summary */}
+          <div className="border rounded-lg p-4 space-y-2">
+            <h3 className="font-semibold mb-2 flex items-center gap-2">
+              <CreditCard size={18} />
+              Payment Summary
+            </h3>
+            <div className="space-y-1 text-sm">
+              <div className="flex justify-between">
+                <span>Shipping Method:</span>
+                <span className="font-medium">
+                  {orderData.deliveryType === 'express' ? 'Express Delivery' : 'Standard Delivery'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Shipping Fee:</span>
+                <span className="font-medium">
+                  {formatPrice(orderData.shippingFee?.$numberDecimal || orderData.shippingFee || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Payment Method:</span>
+                <span className="font-medium capitalize">
+                  {orderData.paymentMethod === 'cashondelivery' ? 'Cash on Delivery' : 
+                   orderData.paymentMethod || 'N/A'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Payment Status:</span>
+                <Badge variant={orderData.paymentStatus === 'paid' ? 'default' : 'secondary'} className="capitalize">
+                  {orderData.paymentStatus || 'unpaid'}
+                </Badge>
+              </div>
+              {orderData.discountAmount && parseFloat(orderData.discountAmount?.$numberDecimal || orderData.discountAmount || 0) > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span className="flex items-center gap-1">
+                    <Tag size={14} />
+                    Discount Code:
+                  </span>
+                  <span className="font-medium">
+                    -{formatPrice(orderData.discountAmount?.$numberDecimal || orderData.discountAmount || 0)}
+                  </span>
+                </div>
+              )}
+              {orderData.voucherDiscount && parseFloat(orderData.voucherDiscount?.$numberDecimal || orderData.voucherDiscount || 0) > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span className="flex items-center gap-1">
+                    <Tag size={14} />
+                    Voucher Discount:
+                  </span>
+                  <span className="font-medium">
+                    -{formatPrice(orderData.voucherDiscount?.$numberDecimal || orderData.voucherDiscount || 0)}
+                  </span>
+                </div>
+              )}
+              {orderData.pointsUsed > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Points Used:</span>
+                  <span className="font-medium">{orderData.pointsUsed} pts (-{formatPrice(orderData.pointsUsed)})</span>
+                </div>
+              )}
+              {orderData.pointsEarned > 0 && (
+                <div className="flex justify-between text-blue-600">
+                  <span>Points Earned:</span>
+                  <span className="font-medium">+{orderData.pointsEarned} pts</span>
+                </div>
+              )}
+              <div className="flex justify-between pt-2 border-t font-bold text-lg">
+                <span>Total:</span>
+                <span>
+                  {formatPrice(orderData.totalAmount?.$numberDecimal || orderData.totalAmount || 0)}
+                </span>
+              </div>
+            </div>
+          </div>
 
                     {/* Order Date */}
                     <div className="text-sm text-muted-foreground">

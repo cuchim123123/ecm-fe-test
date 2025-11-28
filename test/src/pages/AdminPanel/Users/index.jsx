@@ -1,13 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import { UserPlus } from 'lucide-react';
-import UserTable from './components/UserTable';
-import UserStats from './components/UserStats';
-import UserDetailModal from './components/UserDetailModal';
-import UserFormModal from './components/UserFormModal';
-import UserFilters from './components/UserFilters';
-import AdminLayout from '../layouts/AdminLayout';
-import { useUsers } from '@/hooks'; // Using global hook
-import { PageHeader, SearchBar, ConfirmDialog } from '@/components/common';
+import React, { useState, useMemo } from 'react'
+import { UserPlus } from 'lucide-react'
+import UserTable from './components/UserTable'
+import UserStats from './components/UserStats'
+import UserDetailModal from './components/UserDetailModal'
+import UserFormModal from './components/UserFormModal'
+import UserFilters from './components/UserFilters'
+import { AdminContent } from '../components'
+import { useUsers } from '@/hooks' // Using global hook
+import { PageHeader, SearchBar, ConfirmDialog } from '@/components/common'
 
 const Users = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -19,18 +19,19 @@ const Users = () => {
     const [userToDelete, setUserToDelete] = useState(null);
     const [showFilters, setShowFilters] = useState(false);
 
-    // Filter state
-    const [filters, setFilters] = useState({
-        role: 'all',
-        isVerified: 'all',
-        socialProvider: 'all',
-    });
+  // Filter state
+  const [filters, setFilters] = useState({
+    role: 'all',
+    isVerified: 'all',
+    socialProvider: 'all',
+    sortBy: 'none'
+  })
 
-    // Build params for API call
-    const apiParams = useMemo(() => {
-        const params = {
-            search: searchQuery.trim() || undefined,
-        };
+  // Build params for API call
+  const apiParams = useMemo(() => {
+    const params = {
+      keyword: searchQuery.trim() || undefined, // Backend expects 'keyword' not 'search'
+    }
 
         // Add filters if not 'all'
         if (filters.role !== 'all') params.role = filters.role;
@@ -42,25 +43,48 @@ const Users = () => {
         return params;
     }, [searchQuery, filters]);
 
-    // Custom hook handles data fetching and CRUD operations
-    const { users, stats, loading, error, createUser, updateUser, deleteUser } =
-        useUsers({
-            params: apiParams,
-            dependencies: [apiParams],
-        });
+  // Custom hook handles data fetching and CRUD operations
+  const { 
+    users: fetchedUsers, 
+    stats, 
+    loading, 
+    error,
+    createUser,
+    updateUser,
+    deleteUser,
+  } = useUsers({ 
+    params: apiParams,
+    dependencies: [apiParams]
+  })
+
+  // Apply sorting to users
+  const users = useMemo(() => {
+    if (!fetchedUsers || filters.sortBy === 'none') return fetchedUsers
+    
+    const sorted = [...fetchedUsers]
+    
+    if (filters.sortBy === 'points-high') {
+      sorted.sort((a, b) => (b.loyaltyPoints || 0) - (a.loyaltyPoints || 0))
+    } else if (filters.sortBy === 'points-low') {
+      sorted.sort((a, b) => (a.loyaltyPoints || 0) - (b.loyaltyPoints || 0))
+    }
+    
+    return sorted
+  }, [fetchedUsers, filters.sortBy])
 
     const handleFilterChange = (newFilters) => {
         setFilters(newFilters);
     };
 
-    const handleClearFilters = () => {
-        setFilters({
-            role: 'all',
-            isVerified: 'all',
-            socialProvider: 'all',
-        });
-        setSearchQuery('');
-    };
+  const handleClearFilters = () => {
+    setFilters({
+      role: 'all',
+      isVerified: 'all',
+      socialProvider: 'all',
+      sortBy: 'none'
+    })
+    setSearchQuery('')
+  }
 
     const handleViewDetails = (user) => {
         setSelectedUser(user);
@@ -137,52 +161,52 @@ const Users = () => {
         setSelectedUser(null);
     };
 
-    return (
-        <>
-            <AdminLayout
-                header={
-                    <PageHeader
-                        title="User Management"
-                        description="Manage user accounts and permissions"
-                        actionButton={
-                            <button
-                                onClick={handleAddUser}
-                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                <UserPlus className="w-4 h-4" />
-                                Add User
-                            </button>
-                        }
-                    />
-                }
-                filters={
-                    <>
-                        <SearchBar
-                            searchQuery={searchQuery}
-                            onSearchChange={setSearchQuery}
-                            placeholder="Search by name, username, email, or phone..."
-                            onFilterClick={() => setShowFilters(!showFilters)}
-                        />
-                        <UserFilters
-                            filters={filters}
-                            onFilterChange={handleFilterChange}
-                            onClearFilters={handleClearFilters}
-                            showFilters={showFilters}
-                        />
-                    </>
-                }
-                stats={<UserStats stats={stats} />}
-                loading={loading}
-                error={error}
-                onRetry={() => window.location.reload()}
-            >
-                <UserTable
-                    users={users}
-                    onViewDetails={handleViewDetails}
-                    onEdit={handleEditUser}
-                    onDelete={handleDeleteUser}
-                />
-            </AdminLayout>
+  return (
+    <>
+      <AdminContent
+        header={
+          <PageHeader
+            title='User Management'
+            description='Manage user accounts and permissions'
+            actionButton={
+              <button 
+                onClick={handleAddUser}
+                className='w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors'
+              >
+                <UserPlus className='w-4 h-4' />
+                Add User
+              </button>
+            }
+          />
+        }
+        filters={
+          <>
+            <SearchBar
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              placeholder='Search by name, username, email, or phone...'
+              onFilterClick={() => setShowFilters(!showFilters)}
+            />
+            <UserFilters
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              onClearFilters={handleClearFilters}
+              showFilters={showFilters}
+            />
+          </>
+        }
+        stats={<UserStats stats={stats} />}
+        loading={loading}
+        error={error}
+        onRetry={() => window.location.reload()}
+      >
+        <UserTable 
+          users={users} 
+          onViewDetails={handleViewDetails}
+          onEdit={handleEditUser}
+          onDelete={handleDeleteUser}
+        />
+      </AdminContent>
 
             {/* User Detail Modal */}
             {isDetailModalOpen && selectedUser && (

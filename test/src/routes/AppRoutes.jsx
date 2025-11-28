@@ -26,10 +26,11 @@ const VerifyEmail = lazy(() => import('../pages/Auth/Signup/VerifyEmail'));
 const PlaceOrder = lazy(() => import('../pages/PlaceOrder'));
 const Orders = lazy(() => import('../pages/Orders'));
 const OrderHistory = lazy(() => import('../pages/OrderHistory'));
+const OrderDetail = lazy(() => import('../pages/OrderHistory/OrderDetail'));
 const Payment = lazy(() => import('../pages/Payment'));
 const Profile = lazy(() => import('../pages/Profile'));
 const AdminPanel = lazy(() => import('../pages/AdminPanel'));
-const Dashboard = lazy(() => import('../pages/AdminPanel/layouts/Main'));
+const Dashboard = lazy(() => import('../pages/AdminPanel/Dashboard'));
 const Users = lazy(() => import('../pages/AdminPanel/Users'));
 const AdminProducts = lazy(() => import('../pages/AdminPanel/Products'));
 const AdminOrders = lazy(() => import('../pages/AdminPanel/Orders'));
@@ -226,6 +227,14 @@ const AppRoutes = () => {
                     element={
                         <Suspense fallback={<PageLoader />}>
                             <OrderHistory />
+                        </Suspense>
+                    }
+                />
+                <Route
+                    path={`${ROUTES.ORDER_HISTORY}/:orderId`}
+                    element={
+                        <Suspense fallback={<PageLoader />}>
+                            <OrderDetail />
                         </Suspense>
                     }
                 />

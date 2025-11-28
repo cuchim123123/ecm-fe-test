@@ -1,14 +1,14 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Plus } from 'lucide-react';
-import ProductGrid from './components/ProductGrid';
-import ProductStats from './components/ProductStats';
-import ProductDetailModal from './components/ProductDetailModal';
-import ProductFormModal from './components/ProductFormModal';
-import ProductFilters from './components/ProductFilters';
-import AdminLayout from '../layouts/AdminLayout';
-import { useProducts } from '@/hooks'; // Using global hook
-import { PageHeader, SearchBar } from '@/components/common';
-import { getCategories } from '@/services/categories.service';
+import React, { useState, useMemo, useEffect } from 'react'
+import { Plus } from 'lucide-react'
+import ProductGrid from './components/ProductGrid'
+import ProductStats from './components/ProductStats'
+import ProductDetailModal from './components/ProductDetailModal'
+import ProductFormModal from './components/ProductFormModal'
+import ProductFilters from './components/ProductFilters'
+import { AdminContent } from '../components'
+import { useProducts } from '@/hooks' // Using global hook
+import { PageHeader, SearchBar } from '@/components/common'
+import { getCategories } from '@/services/categories.service'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -186,58 +186,58 @@ const Products = () => {
         setSelectedProduct(null);
     };
 
-    return (
-        <>
-            <AdminLayout
-                header={
-                    <PageHeader
-                        title="Product Management"
-                        description="Manage product inventory and listings"
-                        actionButton={
-                            <button
-                                onClick={handleAddProduct}
-                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Add Product
-                            </button>
-                        }
-                    />
-                }
-                filters={
-                    <>
-                        <SearchBar
-                            searchQuery={searchQuery}
-                            onSearchChange={setSearchQuery}
-                            placeholder="Search for products"
-                            onFilterClick={() => setShowFilters(!showFilters)}
-                        />
-                        <ProductFilters
-                            filters={filters}
-                            onFilterChange={handleFilterChange}
-                            onClearFilters={handleClearFilters}
-                            categories={categories}
-                            showFilters={showFilters}
-                            onToggleFilters={() => setShowFilters(!showFilters)}
-                        />
-                    </>
-                }
-                stats={<ProductStats stats={stats} />}
-                loading={loading}
-                error={error}
-                onRetry={() => window.location.reload()}
-            >
-                <ProductGrid
-                    products={products}
-                    onViewDetails={handleViewDetails}
-                    onEdit={(product) => {
-                        setSelectedProduct(product);
-                        setFormMode('edit');
-                        setIsFormModalOpen(true);
-                    }}
-                    onDelete={handleDeleteProduct}
-                />
-            </AdminLayout>
+  return (
+    <>
+      <AdminContent
+        header={
+          <PageHeader
+            title='Product Management'
+            description='Manage product inventory and listings'
+            actionButton={
+              <button 
+                onClick={handleAddProduct}
+                className='flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors'
+              >
+                <Plus className='w-4 h-4' />
+                Add Product
+              </button>
+            }
+          />
+        }
+        filters={
+          <>
+            <SearchBar
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              placeholder='Search for products'
+              onFilterClick={() => setShowFilters(!showFilters)}
+            />
+            <ProductFilters
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              onClearFilters={handleClearFilters}
+              categories={categories}
+              showFilters={showFilters}
+              onToggleFilters={() => setShowFilters(!showFilters)}
+            />
+          </>
+        }
+        stats={<ProductStats stats={stats} />}
+        loading={loading}
+        error={error}
+        onRetry={() => window.location.reload()}
+      >
+        <ProductGrid 
+          products={products} 
+          onViewDetails={handleViewDetails}
+          onEdit={(product) => {
+            setSelectedProduct(product);
+            setFormMode('edit');
+            setIsFormModalOpen(true);
+          }}
+          onDelete={handleDeleteProduct}
+        />
+      </AdminContent>
 
             {/* Product Detail Modal */}
             {isDetailModalOpen && selectedProduct && (

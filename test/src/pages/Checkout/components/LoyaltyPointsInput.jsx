@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks';
+import { formatPrice } from '@/utils/formatPrice';
 import './LoyaltyPointsInput.css';
 
 const LoyaltyPointsInput = ({ onPointsApplied, currentTotal }) => {
@@ -62,67 +63,59 @@ const LoyaltyPointsInput = ({ onPointsApplied, currentTotal }) => {
                 <span className="points-title">Use Loyalty Points</span>
             </div>
 
-            <div className="points-available">
-                Available: <strong>{availablePoints.toLocaleString()}</strong>{' '}
-                points (1 point = $1)
-            </div>
+      <div className="points-available">
+        Available: <strong>{availablePoints.toLocaleString()}</strong> points (1 point = 1₫)
+      </div>
 
-            {appliedPoints > 0 ? (
-                <div className="points-applied">
-                    <div className="applied-info">
-                        <span className="applied-label">Points Applied:</span>
-                        <span className="applied-value">
-                            -{appliedPoints.toLocaleString()} pts ($
-                            {appliedPoints})
-                        </span>
-                    </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRemovePoints}
-                        className="remove-points-btn"
-                    >
-                        Remove
-                    </Button>
-                </div>
-            ) : (
-                <div className="points-input-group">
-                    <div className="input-wrapper">
-                        <input
-                            type="number"
-                            value={pointsToUse}
-                            onChange={(e) => setPointsToUse(e.target.value)}
-                            placeholder={`Enter points (max: ${maxUsablePoints})`}
-                            min="0"
-                            max={maxUsablePoints}
-                            className="points-input"
-                        />
-                        <Button
-                            variant="link"
-                            size="sm"
-                            onClick={handleUseMax}
-                            className="use-max-btn"
-                        >
-                            Use Max
-                        </Button>
-                    </div>
-                    <Button
-                        onClick={handleApplyPoints}
-                        disabled={!pointsToUse}
-                        className="apply-points-btn"
-                    >
-                        Apply
-                    </Button>
-                </div>
-            )}
-
-            {error && <div className="points-error">{error}</div>}
-
-            <div className="points-note">
-                💡 Earn 10% cashback as loyalty points on every order!
-            </div>
+      {appliedPoints > 0 ? (
+        <div className="points-applied">
+          <div className="applied-info">
+            <span className="applied-label">Points Applied:</span>
+            <span className="applied-value">-{appliedPoints.toLocaleString()} pts ({formatPrice(appliedPoints)})</span>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRemovePoints}
+            className="remove-points-btn"
+          >
+            Remove
+          </Button>
         </div>
-    );
+      ) : (
+        <div className="points-input-group">
+          <div className="input-wrapper">
+            <input
+              type="number"
+              value={pointsToUse}
+              onChange={(e) => setPointsToUse(e.target.value)}
+              placeholder={`Enter points (max: ${maxUsablePoints})`}
+              min="0"
+              max={maxUsablePoints}
+              className="points-input"
+            />
+            <Button
+              variant="link"
+              size="sm"
+              onClick={handleUseMax}
+              className="use-max-btn"
+            >
+              Use Max
+            </Button>
+          </div>
+          <Button
+            onClick={handleApplyPoints}
+            disabled={!pointsToUse}
+            className="apply-points-btn"
+          >
+            Apply
+          </Button>
+        </div>
+      )}
+
+      {error && <div className="points-error">{error}</div>}
+    </div>
+  );
 };
 
 export default LoyaltyPointsInput;

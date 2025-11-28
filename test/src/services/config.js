@@ -20,15 +20,25 @@ export const REQUEST_TIMEOUT = 15000; // Reduced from 20s to 15s for faster fail
 
 // API Client with optimizations
 const apiClient = {
-    async request(method, url, options = {}) {
-        const { data, params, headers = {}, ...fetchOptions } = options;
-
-        // Build URL with query params
-        let fullUrl = `${API_BASE_URL}${url}`;
-        if (params) {
-            const queryString = new URLSearchParams(params).toString();
-            fullUrl += `?${queryString}`;
+  async request(method, url, options = {}) {
+    const { data, params, headers = {}, ...fetchOptions } = options;
+    
+    // Build URL with query params
+    let fullUrl = `${API_BASE_URL}${url}`;
+    if (params) {
+      // Filter out undefined values to prevent "undefined" strings in URL
+      const cleanParams = Object.entries(params).reduce((acc, [key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          acc[key] = value;
         }
+        return acc;
+      }, {});
+      
+      const queryString = new URLSearchParams(cleanParams).toString();
+      if (queryString) {
+        fullUrl += `?${queryString}`;
+      }
+    }
 
         // Get auth token if exists
         const token = localStorage.getItem('authToken');

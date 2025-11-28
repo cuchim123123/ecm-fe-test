@@ -11,6 +11,12 @@ import { initPerformanceTracking } from './utils/performance';
 initAPIPreconnect();
 initPerformanceTracking();
 
+// Facebook đôi khi append "#_=_" vào redirect → loại bỏ để tránh hash lạ
+if (window.location.hash === '#_=_') {
+  const cleanUrl = window.location.href.replace(/#_=_$/, '');
+  window.history.replaceState({}, document.title, cleanUrl);
+}
+
 const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
 async function enableMocking() {

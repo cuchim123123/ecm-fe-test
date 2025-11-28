@@ -1,7 +1,6 @@
-import React from 'react';
-import { Eye, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
-import { formatDate } from '@/utils/formatDate';
-import { formatPhone, getRoleBadgeColor } from '../utils/formatters';
+import React from 'react'
+import { Eye, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react'
+import { getRoleBadgeColor } from '../utils/formatters'
 
 const UserTableRow = ({ user, onViewDetails, onEdit, onDelete }) => {
     return (
@@ -27,15 +26,10 @@ const UserTableRow = ({ user, onViewDetails, onEdit, onDelete }) => {
                 </div>
             </td>
 
-            {/* Contact */}
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900 dark:text-white">
-                    {user.email}
-                </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {formatPhone(user.phone)}
-                </div>
-            </td>
+      {/* Email */}
+      <td className='px-6 py-4 whitespace-nowrap'>
+        <div className='text-sm text-gray-900 dark:text-white'>{user.email}</div>
+      </td>
 
             {/* Role */}
             <td className="px-6 py-4 whitespace-nowrap">
@@ -46,46 +40,22 @@ const UserTableRow = ({ user, onViewDetails, onEdit, onDelete }) => {
                 </span>
             </td>
 
-            {/* Status */}
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex items-center gap-2">
-                    {user.isVerified ? (
-                        <>
-                            <CheckCircle className="w-5 h-5 text-green-500" />
-                            <span className="text-sm text-green-600 dark:text-green-400">
-                                Verified
-                            </span>
-                        </>
-                    ) : (
-                        <>
-                            <XCircle className="w-5 h-5 text-red-500" />
-                            <span className="text-sm text-red-600 dark:text-red-400">
-                                Unverified
-                            </span>
-                        </>
-                    )}
-                </div>
-                {user.socialProvider && (
-                    <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                        via {user.socialProvider}
-                    </span>
-                )}
-            </td>
-
-            {/* Loyalty Points */}
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex items-center gap-1">
-                    <span className="text-yellow-500">⭐</span>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        {(user.loyaltyPoints ?? 0).toLocaleString()}
-                    </span>
-                </div>
-            </td>
-
-            {/* Joined Date */}
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                {formatDate(user.createdAt)}
-            </td>
+      {/* Status */}
+      <td className='px-6 py-4 whitespace-nowrap'>
+        <div className='flex items-center gap-2'>
+          {user.isVerified ? (
+            <>
+              <CheckCircle className='w-5 h-5 text-green-500' />
+              <span className='text-sm text-green-600 dark:text-green-400'>Verified</span>
+            </>
+          ) : (
+            <>
+              <XCircle className='w-5 h-5 text-red-500' />
+              <span className='text-sm text-red-600 dark:text-red-400'>Unverified</span>
+            </>
+          )}
+        </div>
+      </td>
 
             {/* Actions */}
             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

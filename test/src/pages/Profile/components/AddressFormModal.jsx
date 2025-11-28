@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Save, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,59 +7,69 @@ import { Label } from '@/components/ui/label';
 import AddressAutocomplete from '@/components/common/AddressAutocomplete';
 import { toast } from 'sonner';
 
-const AddressFormModal = ({
-    address,
-    isOpen,
-    onClose,
-    onSave,
-    mode = 'create',
-}) => {
-    const [formData, setFormData] = useState({
+const AddressFormModal = ({ address, isOpen, onClose, onSave, mode = 'create' }) => {
+  const [formData, setFormData] = useState({
+    fullNameOfReceiver: '',
+    email: '',
+    phone: '',
+    addressLine: '',
+    city: '',
+    postalCode: '',
+    lat: null,
+    lng: null,
+    isDefault: false,
+  });
+
+    const [errors, setErrors] = useState({});
+    const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (address && mode === 'edit') {
+      setFormData({
+        fullNameOfReceiver: address.fullNameOfReceiver || '',
+        email: address.email || '',
+        phone: address.phone || '',
+        addressLine: address.addressLine || '',
+        city: address.city || '',
+        postalCode: address.postalCode || '',
+        lat: address.lat || null,
+        lng: address.lng || null,
+        isDefault: address.isDefault || false,
+      });
+    } else {
+      // Reset form for create mode
+      setFormData({
         fullNameOfReceiver: '',
         email: '',
         phone: '',
         addressLine: '',
         city: '',
         postalCode: '',
+        lat: null,
+        lng: null,
         isDefault: false,
-    });
+      });
+    }
+  }, [address, mode, isOpen]);
 
-    const [errors, setErrors] = useState({});
-    const [saving, setSaving] = useState(false);
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+    setErrors(prev => ({ ...prev, [name]: '' }));
+  };
 
-    useEffect(() => {
-        if (address && mode === 'edit') {
-            setFormData({
-                fullNameOfReceiver: address.fullNameOfReceiver || '',
-                email: address.email || '',
-                phone: address.phone || '',
-                addressLine: address.addressLine || '',
-                city: address.city || '',
-                postalCode: address.postalCode || '',
-                isDefault: address.isDefault || false,
-            });
-        } else {
-            // Reset form for create mode
-            setFormData({
-                fullNameOfReceiver: '',
-                email: '',
-                phone: '',
-                addressLine: '',
-                city: '',
-                postalCode: '',
-                isDefault: false,
-            });
-        }
-    }, [address, mode, isOpen]);
-
-    const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value,
-        }));
-        setErrors((prev) => ({ ...prev, [name]: '' }));
-    };
+  const handleAddressSelect = (suggestion) => {
+    setFormData(prev => ({
+      ...prev,
+      addressLine: suggestion.name || suggestion,
+      lat: suggestion.lat || null,
+      lng: suggestion.lng || null,
+    }));
+    setErrors(prev => ({ ...prev, addressLine: '' }));
+  };
 
     const validateForm = () => {
         const newErrors = {};
@@ -97,47 +108,49 @@ const AddressFormModal = ({
             return;
         }
 
-        setSaving(true);
-        try {
-            await onSave(formData);
-            // Reset form after successful save
-            setFormData({
-                fullNameOfReceiver: '',
-                email: '',
-                phone: '',
-                addressLine: '',
-                city: '',
-                postalCode: '',
-                isDefault: false,
-            });
-            setErrors({});
-            // Parent component will close the modal after refresh completes
-        } catch (error) {
-            // Error toast is handled in the parent component
-            // Keep modal open if there's an error
-            console.error('Form submission error:', error);
-        } finally {
-            setSaving(false);
-        }
-    };
+    setSaving(true);
+    try {
+      await onSave(formData);
+      // Reset form after successful save
+      setFormData({
+        fullNameOfReceiver: '',
+        email: '',
+        phone: '',
+        addressLine: '',
+        city: '',
+        postalCode: '',
+        lat: null,
+        lng: null,
+        isDefault: false,
+      });
+      setErrors({});
+      // Parent component will close the modal after refresh completes
+    } catch (error) {
+      // Error toast is handled in the parent component
+      // Keep modal open if there's an error
+      console.error('Form submission error:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
-                <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-10">
-                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
-                        {mode === 'create' ? 'Add New Address' : 'Edit Address'}
-                    </h2>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2"
-                        aria-label="Close"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-                </div>
+  return createPortal(
+    <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-[2000] p-3 sm:p-4'>
+      <div className='bg-white dark:bg-gray-800 rounded-lg w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto'>
+        <div className='sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between z-10'>
+          <h2 className='text-lg sm:text-xl font-semibold text-gray-900 dark:text-white'>
+            {mode === 'create' ? 'Add New Address' : 'Edit Address'}
+          </h2>
+          <button 
+            onClick={onClose} 
+            className='text-gray-400 hover:text-gray-600 min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2'
+            aria-label="Close"
+          >
+            <X className='w-6 h-6' />
+          </button>
+        </div>
 
                 <form
                     onSubmit={handleSubmit}
@@ -223,38 +236,31 @@ const AddressFormModal = ({
                         </div>
                     </div>
 
-                    {/* Address Details */}
-                    <div className="space-y-3 sm:space-y-4">
-                        <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white">
-                            Address Details
-                        </h3>
-
-                        <div>
-                            <Label
-                                htmlFor="addressLine"
-                                className="text-sm sm:text-base"
-                            >
-                                Full Address *
-                            </Label>
-                            <div className="mt-1.5">
-                                <AddressAutocomplete
-                                    id="addressLine"
-                                    name="addressLine"
-                                    value={formData.addressLine}
-                                    onChange={handleInputChange}
-                                    placeholder="e.g., 76/12 Bà Hom, Phường 13, Quận 6"
-                                />
-                            </div>
-                            <p className="text-xs text-gray-500 mt-1.5">
-                                Enter full address including street, ward, and
-                                district
-                            </p>
-                            {errors.addressLine && (
-                                <p className="text-red-500 text-xs sm:text-sm mt-1.5">
-                                    {errors.addressLine}
-                                </p>
-                            )}
-                        </div>
+          {/* Address Details */}
+          <div className='space-y-3 sm:space-y-4'>
+            <h3 className='text-base sm:text-lg font-medium text-gray-900 dark:text-white'>
+              Address Details
+            </h3>
+            
+            <div>
+              <Label htmlFor='addressLine' className='text-sm sm:text-base'>Full Address *</Label>
+              <div className='mt-1.5'>
+                <AddressAutocomplete
+                  id='addressLine'
+                  name='addressLine'
+                  value={formData.addressLine}
+                  onChange={handleInputChange}
+                  onSelect={handleAddressSelect}
+                  placeholder='e.g., 76/12 Bà Hom, Phường 13, Quận 6'
+                />
+              </div>
+              <p className='text-xs text-gray-500 mt-1.5'>
+                Enter full address including street, ward, and district
+              </p>
+              {errors.addressLine && (
+                <p className='text-red-500 text-xs sm:text-sm mt-1.5'>{errors.addressLine}</p>
+              )}
+            </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <div>
@@ -311,34 +317,31 @@ const AddressFormModal = ({
                         </Label>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={onClose}
-                            disabled={saving}
-                            className="w-full sm:w-auto min-h-[44px] sm:min-h-[40px]"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={saving}
-                            className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto min-h-[44px] sm:min-h-[40px]"
-                        >
-                            <Save className="w-4 h-4 mr-2" />
-                            {saving
-                                ? 'Saving...'
-                                : mode === 'create'
-                                  ? 'Add Address'
-                                  : 'Save Changes'}
-                        </Button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
+          {/* Action Buttons */}
+          <div className='flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-200 dark:border-gray-700'>
+            <Button 
+              type='button' 
+              variant='outline' 
+              onClick={onClose} 
+              disabled={saving}
+              className='w-full sm:w-auto min-h-[44px] sm:min-h-[40px]'
+            >
+              Cancel
+            </Button>
+            <Button 
+              type='submit' 
+              disabled={saving} 
+              className='bg-blue-600 hover:bg-blue-700 w-full sm:w-auto min-h-[44px] sm:min-h-[40px]'
+            >
+              <Save className='w-4 h-4 mr-2' />
+              {saving ? 'Saving...' : mode === 'create' ? 'Add Address' : 'Save Changes'}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body
+  );
 };
 
 export default AddressFormModal;

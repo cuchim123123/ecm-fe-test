@@ -11,26 +11,25 @@ import { useCheckout } from './hooks/useCheckout';
 import './Checkout.css';
 
 const Checkout = () => {
-    const navigate = useNavigate();
-    const [selectedAddressId, setSelectedAddressId] = useState(null);
-
-    const {
-        cartItems,
-        paymentMethod,
-        subtotal,
-        shipping,
-        tax,
-        discount,
-        loyaltyPointsDiscount,
-        total,
-        loading,
-        error,
-        submitting,
-        handlePaymentMethodChange,
-        handleSubmitOrder,
-        handleDiscountApplied,
-        handlePointsApplied,
-    } = useCheckout();
+  const navigate = useNavigate();
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  
+  const {
+    cartItems,
+    paymentMethod,
+    subtotal,
+    shipping,
+    discount,
+    loyaltyPointsDiscount,
+    total,
+    loading,
+    error,
+    submitting,
+    handlePaymentMethodChange,
+    handleSubmitOrder,
+    handleDiscountApplied,
+    handlePointsApplied,
+  } = useCheckout();
 
     if (loading) {
         return (
@@ -99,26 +98,25 @@ const Checkout = () => {
                     />
                 </div>
 
-                {/* Right Column - Order Summary */}
-                <div className="checkout-summary">
-                    <OrderSummary
-                        cartItems={cartItems}
-                        subtotal={subtotal}
-                        shipping={shipping}
-                        tax={tax}
-                        discount={discount}
-                        loyaltyPointsDiscount={loyaltyPointsDiscount}
-                        total={total}
-                        onSubmit={handleCheckout}
-                        submitting={submitting}
-                        onDiscountApplied={handleDiscountApplied}
-                        onPointsApplied={handlePointsApplied}
-                        disabled={!selectedAddressId}
-                    />
-                </div>
-            </div>
+        {/* Right Column - Order Summary */}
+        <div className="checkout-summary">
+          <OrderSummary
+            cartItems={cartItems}
+            subtotal={subtotal}
+            shipping={shipping}
+            discount={discount}
+            loyaltyPointsDiscount={loyaltyPointsDiscount}
+            total={total}
+            onSubmit={handleCheckout}
+            submitting={submitting}
+            onDiscountApplied={handleDiscountApplied}
+            onPointsApplied={handlePointsApplied}
+            disabled={!selectedAddressId}
+          />
         </div>
-    );
+      </div>
+    </div>
+  );
 };
 
 export default Checkout;

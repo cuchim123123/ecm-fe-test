@@ -42,7 +42,41 @@ const ProductDetail = () => {
         handleVariantChange,
     } = useProductDetail(id);
 
-    const [addingToCart, setAddingToCart] = React.useState(false);
+  const [addingToCart, setAddingToCart] = React.useState(false);
+
+  // Collect all images: product images + all variant images
+  const allImages = React.useMemo(() => {
+    if (!product) return [];
+    
+    const images = [...(product.imageUrls || [])];
+    
+    // Add images from all variants
+    if (variants && variants.length > 0) {
+      variants.forEach(variant => {
+        if (variant.imageUrls && variant.imageUrls.length > 0) {
+          variant.imageUrls.forEach(img => {
+            // Avoid duplicates
+            if (!images.includes(img)) {
+              images.push(img);
+            }
+          });
+        }
+      });
+    }
+    
+    return images;
+  }, [product, variants]);
+
+  // Get the index of the selected variant's first image (for auto-scroll)
+  const selectedVariantImageIndex = React.useMemo(() => {
+    if (!selectedVariant || !selectedVariant.imageUrls || selectedVariant.imageUrls.length === 0) {
+      return 0;
+    }
+    
+    const variantFirstImage = selectedVariant.imageUrls[0];
+    const index = allImages.indexOf(variantFirstImage);
+    return index >= 0 ? index : 0;
+  }, [selectedVariant, allImages]);
 
     const handleAddToCart = async () => {
         const startTime = performance.now();
@@ -184,19 +218,16 @@ const ProductDetail = () => {
                     Back to Products
                 </Button>
 
-                {/* Product Main Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-[45%_55%] gap-4 md:gap-8 mb-6 md:mb-8 items-start">
-                    {/* Image Gallery */}
-                    <div className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-100px)] overflow-hidden">
-                        <ProductImageGallery
-                            images={
-                                selectedVariant?.imageUrls ||
-                                product.imageUrls ||
-                                []
-                            }
-                            productName={product.name}
-                        />
-                    </div>
+        {/* Product Main Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-[45%_55%] gap-4 md:gap-8 mb-6 md:mb-8 items-start">
+          {/* Image Gallery */}
+          <div className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-100px)] overflow-hidden">
+            <ProductImageGallery 
+              images={allImages}
+              selectedVariantImageIndex={selectedVariantImageIndex}
+              productName={product.name} 
+            />
+          </div>
 
                     {/* Product Info */}
                     <div>
@@ -241,26 +272,26 @@ const ProductDetail = () => {
                 <ReviewSection productId={id} />
             </div>
 
-            {/* Mobile Bottom Action Bar */}
-            <div className="hidden max-md:flex fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-2 md:p-3 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] gap-2">
-                <button
-                    className="flex-1 h-11 text-sm font-semibold rounded-none bg-slate-100 text-slate-800 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
-                    onClick={handleAddToCart}
-                    disabled={!selectedVariant || !inStock || addingToCart}
-                >
-                    <ShoppingCart size={18} />
-                    Add to Cart
-                </button>
-                <button
-                    className="flex-1 h-11 text-sm font-semibold rounded-none bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
-                    onClick={handleBuyNow}
-                    disabled={!selectedVariant || !inStock || addingToCart}
-                >
-                    Buy Now
-                </button>
-            </div>
-        </div>
-    );
+      {/* Mobile Bottom Action Bar */}
+      <div className="hidden max-md:flex fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-2 md:p-3 z-[100] shadow-[0_-2px_10px_rgba(0,0,0,0.1)] gap-2">
+        <button
+          className="flex-1 h-11 text-sm font-semibold rounded-none bg-slate-100 text-slate-800 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
+          onClick={handleAddToCart}
+          disabled={!selectedVariant || !inStock || addingToCart}
+        >
+          <ShoppingCart size={18} />
+          Add to Cart
+        </button>
+        <button
+          className="flex-1 h-11 text-sm font-semibold rounded-none bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
+          onClick={handleBuyNow}
+          disabled={!selectedVariant || !inStock || addingToCart}
+        >
+          Buy Now
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default ProductDetail;

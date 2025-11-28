@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { X, Edit, Trash2, ExternalLink, MessageSquare } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react'
+import { createPortal } from 'react-dom'
+import { X, Edit, Trash2, ExternalLink, MessageSquare } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -57,56 +58,39 @@ const ProductDetailModal = ({ product, onClose, onEdit, onDelete }) => {
         // TODO: Implement reviews view
     };
 
-    return (
-        <>
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                    {/* Header */}
-                    <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between items-center z-10">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                            Product Details
-                        </h2>
-                        <div className="flex items-center gap-2">
-                            <Button
-                                onClick={handleViewProduct}
-                                variant="outline"
-                                size="sm"
-                            >
-                                <ExternalLink className="w-4 h-4 mr-2" />
-                                View Page
-                            </Button>
-                            <Button
-                                onClick={handleViewReviews}
-                                variant="outline"
-                                size="sm"
-                            >
-                                <MessageSquare className="w-4 h-4 mr-2" />
-                                Reviews
-                            </Button>
-                            <Button
-                                onClick={handleEdit}
-                                variant="outline"
-                                size="sm"
-                            >
-                                <Edit className="w-4 h-4 mr-2" />
-                                Edit
-                            </Button>
-                            <Button
-                                onClick={() => setShowDeleteDialog(true)}
-                                variant="destructive"
-                                size="sm"
-                            >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Delete
-                            </Button>
-                            <button
-                                onClick={onClose}
-                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors ml-2"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
-                    </div>
+  return (
+    <>
+      {createPortal(
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[2000] p-4'>
+        <div className='bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto'>
+          {/* Header */}
+          <div className='sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between items-center z-10'>
+            <h2 className='text-xl font-bold text-gray-900 dark:text-white'>Product Details</h2>
+            <div className='flex items-center gap-2'>
+              <Button onClick={handleViewProduct} variant='outline' size='sm'>
+                <ExternalLink className='w-4 h-4 mr-2' />
+                View Page
+              </Button>
+              <Button onClick={handleViewReviews} variant='outline' size='sm'>
+                <MessageSquare className='w-4 h-4 mr-2' />
+                Reviews
+              </Button>
+              <Button onClick={handleEdit} variant='outline' size='sm'>
+                <Edit className='w-4 h-4 mr-2' />
+                Edit
+              </Button>
+              <Button onClick={() => setShowDeleteDialog(true)} variant='destructive' size='sm'>
+                <Trash2 className='w-4 h-4 mr-2' />
+                Delete
+              </Button>
+              <button 
+                onClick={onClose}
+                className='text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors ml-2'
+              >
+                <X className='w-6 h-6' />
+              </button>
+            </div>
+          </div>
 
                     {/* Content */}
                     <div className="p-6">
@@ -143,14 +127,13 @@ const ProductDetailModal = ({ product, onClose, onEdit, onDelete }) => {
                             )}
                         </div>
 
-                        {/* Metadata */}
-                        <ProductMetadata
-                            createdAt={productWithVariants.createdAt}
-                            updatedAt={productWithVariants.updatedAt}
-                        />
-                    </div>
-                </div>
-            </div>
+            {/* Metadata */}
+            <ProductMetadata createdAt={productWithVariants.createdAt} updatedAt={productWithVariants.updatedAt} />
+          </div>
+        </div>
+      </div>,
+        document.body
+      )}
 
             {/* Edit Modal */}
             {showEditModal && (

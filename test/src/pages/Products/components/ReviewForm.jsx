@@ -8,15 +8,24 @@ const ReviewForm = ({ onSubmit, submitting }) => {
     const [rating, setRating] = useState(5);
     const [content, setContent] = useState('');
     const [hoveredRating, setHoveredRating] = useState(0);
+    const [selectedImages, setSelectedImages] = useState([]);
+
+    const handleImageChange = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length + selectedImages.length > 5) {
+            alert('Chỉ được chọn tối đa 5 ảnh');
+            return;
+        }
+        setSelectedImages([...selectedImages, ...files]);
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        if (!content.trim()) {
-            return;
-        }
-
-        onSubmit({ rating, content: content.trim() });
+        onSubmit({
+            rating,
+            comment: content, // Backend dùng 'comment'
+            images: selectedImages, // Gửi mảng file
+        });
     };
 
     return (

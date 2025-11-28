@@ -19,23 +19,25 @@ export const getProductReviews = async (productId, params = {}) => {
  * @returns {Promise<Object>} - Created review with populated user data
  */
 export const createReview = async (reviewData) => {
-    // Validate required fields
-    if (!reviewData.productId) {
-        throw new Error('Product ID is required');
-    }
-    if (!reviewData.variantId) {
-        throw new Error('Variant ID is required');
-    }
-    if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
-        throw new Error('Rating must be between 1 and 5');
+    // 1. Tạo FormData
+    const formData = new FormData();
+    
+    // 2. Append các trường text
+    formData.append('productId', reviewData.productId);
+    formData.append('variantId', reviewData.variantId);
+    formData.append('rating', reviewData.rating);
+    formData.append('comment', reviewData.comment || ''); // Backend dùng 'comment' chứ không phải 'content'
+
+    // 3. Append file ảnh (nếu có)
+    // reviewData.images là mảng File object từ input
+    if (reviewData.images && reviewData.images.length > 0) {
+        reviewData.images.forEach((file) => {
+            formData.append('reviewImages', file); // Key phải khớp với multer bên backend
+        });
     }
 
-    const response = await apiClient.post('/reviews', {
-        productId: reviewData.productId,
-        variantId: reviewData.variantId,
-        rating: reviewData.rating,
-        comment: reviewData.comment?.trim() || '',
-    });
+    // 4. Gửi request (Axios tự detect Content-Type là multipart)
+    const response = await apiClient.post('/reviews', formData);
     return response;
 };
 

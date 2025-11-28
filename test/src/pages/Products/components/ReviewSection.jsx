@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Star, ThumbsUp, Flag, Wifi } from 'lucide-react';
+import { Star, ThumbsUp, Flag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -22,10 +22,9 @@ const ReviewSection = ({ productId }) => {
     } = useProductReviews(productId);
     const [showForm, setShowForm] = useState(false);
 
-    // Enable real-time updates via polling (30 seconds interval)
+    // Polling cập nhật review mới (30s/lần)
     const fetchReviews = useCallback(() => {
         if (!showForm) {
-            // Only poll when not writing a review
             refetch();
         }
     }, [refetch, showForm]);
@@ -61,7 +60,7 @@ const ReviewSection = ({ productId }) => {
     const renderRatingBar = (rating, count, total) => {
         const percentage = total > 0 ? (count / total) * 100 : 0;
         return (
-            <div className="rating-bar">
+            <div className="rating-bar" key={rating}>
                 <span className="rating-label">{rating} ★</span>
                 <div className="bar-container">
                     <div
@@ -153,55 +152,82 @@ const ReviewSection = ({ productId }) => {
                     </div>
                 ) : (
                     <>
-                        {reviews.map((review) => (
-                            <Card key={review._id} className="review-card">
-                                <div className="review-header-info">
-                                    <div className="reviewer-info">
-                                        {review.userAvatar ? (
-                                            <img
-                                                src={review.userAvatar}
-                                                alt={review.userName}
-                                                className="reviewer-avatar"
-                                            />
-                                        ) : (
-                                            <div className="reviewer-avatar-placeholder">
-                                                {review.userName
-                                                    ?.charAt(0)
-                                                    .toUpperCase() || 'A'}
+                        {reviews.map((review) => {
+                            // --- [DEBUG LOG] ---
+                            console.log('🔍 DEBUG REVIEW ITEM:', review);
+                            console.log('👉 Avatar URL:', review.userId?.avatar);
+                            console.log('👉 Comment:', review.comment);
+                            // -------------------
+
+                            // Xử lý an toàn dữ liệu User
+                            const user = review.userId || {}; 
+                            const userName = user.fullname || user.username || user.email?.split('@')[0] || 'Anonymous';
+                            const userAvatar = user.avatar;
+
+                            return (
+                                <Card key={review._id} className="review-card">
+                                    <div className="review-header-info">
+                                        <div className="reviewer-info">
+                                            {userAvatar ? (
+                                                <img
+                                                    src={userAvatar}
+                                                    alt={userName}
+                                                    className="reviewer-avatar"
+                                                    onError={(e) => e.target.style.display = 'none'} // Ẩn nếu ảnh lỗi
+                                                />
+                                            ) : (
+                                                <div className="reviewer-avatar-placeholder">
+                                                    {userName.charAt(0).toUpperCase()}
+                                                </div>
+                                            )}
+                                            <div>
+                                                <p className="reviewer-name">
+                                                    {userName}
+                                                </p>
+                                                <p className="review-date">
+                                                    {formatDate(review.createdAt)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {review.rating && (
+                                            <div className="review-rating">
+                                                {renderStars(review.rating)}
                                             </div>
                                         )}
-                                        <div>
-                                            <p className="reviewer-name">
-                                                {review.userName || 'Anonymous'}
-                                            </p>
-                                            <p className="review-date">
-                                                {formatDate(review.createdAt)}
-                                            </p>
-                                        </div>
                                     </div>
-                                    {review.rating && (
-                                        <div className="review-rating">
-                                            {renderStars(review.rating)}
+
+                                    {/* [SỬA LỖI] Dùng review.comment thay vì review.content */}
+                                    <p className="review-content">
+                                        {review.comment || review.content} 
+                                    </p>
+
+                                    {/* Hiển thị ảnh review nếu có */}
+                                    {review.imageUrls && review.imageUrls.length > 0 && (
+                                        <div className="review-images-grid mt-3 flex gap-2">
+                                            {review.imageUrls.map((img, idx) => (
+                                                <img 
+                                                    key={idx} 
+                                                    src={img} 
+                                                    alt="Review attachment" 
+                                                    className="w-20 h-20 object-cover rounded border border-gray-200"
+                                                />
+                                            ))}
                                         </div>
                                     )}
-                                </div>
 
-                                <p className="review-content">
-                                    {review.content}
-                                </p>
-
-                                <div className="review-actions">
-                                    <Button variant="ghost" size="sm">
-                                        <ThumbsUp size={16} />
-                                        Helpful
-                                    </Button>
-                                    <Button variant="ghost" size="sm">
-                                        <Flag size={16} />
-                                        Report
-                                    </Button>
-                                </div>
-                            </Card>
-                        ))}
+                                    <div className="review-actions">
+                                        <Button variant="ghost" size="sm">
+                                            <ThumbsUp size={16} />
+                                            Helpful
+                                        </Button>
+                                        <Button variant="ghost" size="sm">
+                                            <Flag size={16} />
+                                            Report
+                                        </Button>
+                                    </div>
+                                </Card>
+                            );
+                        })}
 
                         {hasMore && (
                             <div className="load-more">

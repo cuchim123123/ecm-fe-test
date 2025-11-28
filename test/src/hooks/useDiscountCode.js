@@ -3,6 +3,10 @@ import {
   validateDiscountCode as validateCodeService,
 } from '../services/discountCodes.service';
 
+const LEGACY_CODE_LENGTH = 5;
+const NEW_CODE_MIN_LENGTH = 8;
+const NEW_CODE_MAX_LENGTH = 12;
+
 /**
  * Custom hook for managing discount code validation and application
  * @param {number} orderTotal - Current order total
@@ -25,10 +29,17 @@ export const useDiscountCode = (orderTotal = 0) => {
       return false;
     }
 
-    // Check format first (5 alphanumeric characters)
-    const isValid = /^[A-Z0-9]{5}$/i.test(codeToValidate.trim());
+    // Check format first: legacy 5 chars still allowed, new codes 8-12 chars
+    const trimmed = codeToValidate.trim();
+    const isValid =
+      (/^[A-Z0-9]{5}$/i.test(trimmed) && trimmed.length === LEGACY_CODE_LENGTH) ||
+      (/^[A-Z0-9]+$/i.test(trimmed) &&
+        trimmed.length >= NEW_CODE_MIN_LENGTH &&
+        trimmed.length <= NEW_CODE_MAX_LENGTH);
     if (!isValid) {
-      setError('Invalid code format. Code must be 5 alphanumeric characters.');
+      setError(
+        `Invalid code format. Use 8-${NEW_CODE_MAX_LENGTH} uppercase letters/numbers (legacy 5-character codes are still accepted).`,
+      );
       return false;
     }
 

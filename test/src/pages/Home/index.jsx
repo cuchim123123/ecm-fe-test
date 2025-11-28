@@ -1,5 +1,7 @@
 ﻿import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { getProducts } from '@/services';
+import { getCollectableVouchers, collectVoucher } from '@/services/vouchers.service';
+import VoucherStrip from './components/VoucherStrip';
 
 // Lazy load sections below the fold for faster initial render
 const HeroSection = lazy(() => import('./components/Hero').then(m => ({ default: m.HeroSection })));
@@ -13,6 +15,9 @@ const Home = () => {
   const [loadingFeatured, setLoadingFeatured] = useState(true);
   const [loadingNew, setLoadingNew] = useState(true);
   const [loadingBestSellers, setLoadingBestSellers] = useState(true);
+  const [collectableVouchers, setCollectableVouchers] = useState([]);
+  const [voucherError, setVoucherError] = useState('');
+  const [collectingId, setCollectingId] = useState(null);
 
   // Load featured products immediately (critical)
   useEffect(() => {
@@ -65,6 +70,36 @@ const Home = () => {
     loadBestSellers();
   }, []);
 
+  // Load collectable vouchers for logged-in user
+  useEffect(() => {
+    const loadVouchers = async () => {
+      try {
+        setVoucherError('');
+        const res = await getCollectableVouchers();
+        setCollectableVouchers(res.vouchers || res.data || []);
+      } catch (error) {
+        // Silence auth errors to avoid showing login prompt on home
+        setVoucherError('');
+        setCollectableVouchers([]);
+      }
+    };
+    loadVouchers();
+  }, []);
+
+  const handleCollectVoucher = async (voucherId) => {
+    try {
+      setCollectingId(voucherId);
+      await collectVoucher(voucherId);
+      setCollectableVouchers((prev) =>
+        prev.map((v) => (v._id === voucherId ? { ...v, collected: true } : v)),
+      );
+    } catch (error) {
+      setVoucherError(error.message || 'Lưu voucher thất bại.');
+    } finally {
+      setCollectingId(null);
+    }
+  };
+
   const categorizedProducts = {
     featured: featuredProducts,
     newProducts,
@@ -88,6 +123,13 @@ const Home = () => {
           <HeroSection featuredProducts={categorizedProducts.featured} />
         </Suspense>
       ) : null}
+
+      <VoucherStrip
+        vouchers={collectableVouchers}
+        onCollect={handleCollectVoucher}
+        collectingId={collectingId}
+        error={voucherError}
+      />
 
       {/* New Arrivals Section - Above Everything */}
       <Suspense fallback={

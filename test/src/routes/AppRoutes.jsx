@@ -31,6 +31,9 @@ const Users = lazy(() => import('../pages/AdminPanel/Users'));
 const AdminProducts = lazy(() => import('../pages/AdminPanel/Products'));
 const AdminOrders = lazy(() => import('../pages/AdminPanel/Orders'));
 const DiscountCodes = lazy(() => import('../pages/AdminPanel/DiscountCodes'));
+const Vouchers = lazy(() => import('../pages/AdminPanel/Vouchers'));
+const Badges = lazy(() => import('../pages/AdminPanel/Badges'));
+const LoyaltyAdmin = lazy(() => import('../pages/AdminPanel/Loyalty'));
 const CarouselDemo = lazy(() => import('../pages/CarouselDemo'));
 
 // Loading component for Suspense fallback
@@ -96,6 +99,18 @@ const router = createBrowserRouter([
       {
         path: 'discount-codes',
         element: <Suspense fallback={<PageLoader />}><DiscountCodes /></Suspense>
+      },
+      {
+        path: 'vouchers',
+        element: <Suspense fallback={<PageLoader />}><Vouchers /></Suspense>
+      },
+      {
+        path: 'badges',
+        element: <Suspense fallback={<PageLoader />}><Badges /></Suspense>
+      },
+      {
+        path: 'loyalty',
+        element: <Suspense fallback={<PageLoader />}><LoyaltyAdmin /></Suspense>
       }
     ]
   },

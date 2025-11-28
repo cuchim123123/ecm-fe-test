@@ -1,9 +1,10 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { User, Mail, Phone, MapPin, Camera, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/common';
 import { toast } from 'sonner';
 import { useProfile } from './hooks/useProfile';
+import { getMyBadges } from '@/services/badges.service';
 import './Profile.css';
 
 const PersonalInfoSection = lazy(() => import('./components/PersonalInfoSection'));
@@ -13,6 +14,20 @@ const SecuritySection = lazy(() => import('./components/SecuritySection'));
 const Profile = () => {
   const { user, loading, error, updateProfile, updateAvatar } = useProfile();
   const [activeTab, setActiveTab] = useState('personal');
+  const [userBadges, setUserBadges] = useState([]);
+
+  useEffect(() => {
+    const loadBadges = async () => {
+      try {
+        const res = await getMyBadges();
+        setUserBadges(res.badges || res.data || []);
+      } catch (err) {
+        // Không chặn profile khi lỗi badge
+        console.warn('Load badges failed:', err?.message || err);
+      }
+    };
+    loadBadges();
+  }, []);
 
   if (loading) {
     return (
@@ -92,6 +107,11 @@ const Profile = () => {
                   {user.socialProvider}
                 </span>
               )}
+              {userBadges.map((b) => (
+                <span key={b.badgeId || b._id} className="badge user-badge">
+                  {b.name || 'Badge'}
+                </span>
+              ))}
             </div>
           </div>
         </div>

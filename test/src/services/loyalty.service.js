@@ -1,19 +1,17 @@
-import { apiRequest } from './config';
-
-export const getLoyaltyConfig = async () => {
-  return apiRequest('/loyalty/config', {
-    method: 'GET',
-  });
-};
+import apiClient from './config';
 
 export const getMyLoyaltyInfo = async () => {
-  return apiRequest('/loyalty/me', {
-    method: 'GET',
-  });
+  return apiClient.get('/loyalty/me');
 };
 
 export const getMyCoinTransactions = async (limit = 50) => {
-  return apiRequest(`/loyalty/points?limit=${limit}`, {
-    method: 'GET',
-  });
+  return apiClient.get('/loyalty/points', { params: { limit } });
+};
+
+export const getLoyaltyHistory = async () => {
+  return apiClient.get('/loyalty/history');
+};
+
+export const redeemCoins = async (amount) => {
+  return apiClient.post('/loyalty/redeem', { amount });
 };

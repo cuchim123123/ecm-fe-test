@@ -132,6 +132,12 @@
   text-transform: capitalize;
 }
 
+.badge.user-badge {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
 .profile-stats {
   display: flex;
   gap: 2rem;

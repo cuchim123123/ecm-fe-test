@@ -11,6 +11,9 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 
+const CODE_MIN_LENGTH = 8
+const CODE_MAX_LENGTH = 12
+
 const DiscountCodeModal = ({ code, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     code: '',
@@ -32,11 +35,22 @@ const DiscountCodeModal = ({ code, onClose, onSave }) => {
   const validateForm = () => {
     const newErrors = {}
 
-    // Code validation (5 characters, alphanumeric)
+    // Code validation (8-12 characters, alphanumeric)
     if (!formData.code) {
       newErrors.code = 'Code is required'
-    } else if (!/^[A-Z0-9]{5}$/.test(formData.code.toUpperCase())) {
-      newErrors.code = 'Code must be exactly 5 alphanumeric characters'
+    } else {
+      const normalized = formData.code.toUpperCase().trim()
+
+      if (!/^[A-Z0-9]+$/.test(normalized)) {
+        newErrors.code = 'Code can only contain letters and numbers'
+      } else if (
+        // Only enforce new length when creating a new code; legacy codes can still be edited
+        !code &&
+        (normalized.length < CODE_MIN_LENGTH ||
+          normalized.length > CODE_MAX_LENGTH)
+      ) {
+        newErrors.code = `Code must be ${CODE_MIN_LENGTH}-${CODE_MAX_LENGTH} characters`
+      }
     }
 
     // Value validation
@@ -89,8 +103,8 @@ const DiscountCodeModal = ({ code, onClose, onSave }) => {
               id="code"
               value={formData.code}
               onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-              placeholder="ABCD1"
-              maxLength={5}
+              placeholder="ABCD2024"
+              maxLength={CODE_MAX_LENGTH}
               className="font-mono text-lg"
               disabled={!!code} // Can't edit code once created
             />
@@ -98,22 +112,22 @@ const DiscountCodeModal = ({ code, onClose, onSave }) => {
               <p className="text-sm text-destructive">{errors.code}</p>
             )}
             <p className="text-xs text-muted-foreground">
-              5 alphanumeric characters (letters and numbers only)
+              {`Use ${CODE_MIN_LENGTH}-${CODE_MAX_LENGTH} letters/numbers (uppercase) for new codes`}
             </p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="value">
-              Discount Value ($) <span className="text-destructive">*</span>
+              Discount Value (VND) <span className="text-destructive">*</span>
             </Label>
             <Input
               id="value"
               type="number"
-              step="0.01"
+              step="1000"
               min="0.01"
               value={formData.value}
               onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-              placeholder="10.00"
+              placeholder="100000"
             />
             {errors.value && (
               <p className="text-sm text-destructive">{errors.value}</p>

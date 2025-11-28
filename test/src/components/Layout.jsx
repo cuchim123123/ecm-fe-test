@@ -3,6 +3,7 @@ import Navbar from './Navbar'
 import { Outlet } from 'react-router-dom'
 import { Fragment } from 'react'
 import { Toaster } from './ui/sonner'
+import ChatWidget from './chat/ChatWidget'
 
 const Layout = () => {
     return (
@@ -13,6 +14,7 @@ const Layout = () => {
                 <Outlet />
             </main>
             <Toaster />
+            <ChatWidget />
         </div>
     )
 }

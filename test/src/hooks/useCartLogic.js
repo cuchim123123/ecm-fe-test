@@ -93,31 +93,33 @@ export const useCart = () => {
                 // console.log('🔥 RAW ITEMS FROM BACKEND:', cartData.items);
 
                 const adaptedItems = cartData.items.map((item) => {
-                    // 1. Lấy Variant (JSON của bạn dùng key "variant")
-                    // Kiểm tra kỹ xem nó là object hay null
+                    // 1. Lấy Variant - Hỗ trợ cả 2 trường: item.variant (cũ) và item.variantId (mới từ socket)
                     const rawVariant =
-                        item.variant && typeof item.variant === 'object'
+                        (item.variantId && typeof item.variantId === 'object'
+                            ? item.variantId
+                            : item.variant && typeof item.variant === 'object'
                             ? item.variant
-                            : {};
+                            : null);
 
-                    // 2. Lấy Product (Nằm TRONG variant.productId theo JSON bạn gửi)
-                    // item.product ở ngoài chỉ là string ID, không dùng được
+                    // 2. Lấy Product (Nằm TRONG variant.productId)
                     const rawProduct =
-                        rawVariant.productId &&
+                        rawVariant?.productId &&
                         typeof rawVariant.productId === 'object'
                             ? rawVariant.productId
-                            : {};
+                            : null;
 
                     // 3. Xử lý Giá (JSON item.price là số 350000, nhưng đề phòng Decimal128)
-                    let finalPrice = item.price || rawVariant.price || 0;
+                    let finalPrice = item.price || rawVariant?.price || 0;
                     if (typeof finalPrice === 'object' && finalPrice !== null) {
                         finalPrice = parseFloat(
                             finalPrice.$numberDecimal || finalPrice.value || 0,
                         );
                     }
 
-                    if (!rawProduct.name)
-                        console.warn('Missing Name for Item:', item);
+                    if (!rawVariant || !rawProduct) {
+                        console.warn('⚠️ Missing variant/product in fetchCart:', item);
+                        return null;
+                    }
 
                     // 4. Return cấu trúc chuẩn cho UI (CartItem.jsx)
                     return {
@@ -128,11 +130,7 @@ export const useCart = () => {
 
                         product: {
                             _id: rawProduct._id || rawProduct.id,
-                            // [FIX] Nếu không có tên product, thử lấy tên từ variant, hoặc hiển thị text mặc định
-                            name:
-                                rawProduct.name ||
-                                rawVariant.name ||
-                                'Sản phẩm chưa cập nhật tên',
+                            name: rawProduct.name || 'Sản phẩm chưa cập nhật tên',
                             slug: rawProduct.slug,
                             imageUrls: Array.isArray(rawProduct.imageUrls)
                                 ? rawProduct.imageUrls
@@ -145,7 +143,6 @@ export const useCart = () => {
                         variant: {
                             _id: rawVariant._id || rawVariant.id,
                             productId: rawProduct._id,
-                            // [FIX] Nếu SKU null hoặc undefined, trả về chuỗi rỗng để UI ẩn đi thay vì hiện lỗi
                             sku: rawVariant.sku || '',
                             price: finalPrice,
                             stockQuantity: rawVariant.stockQuantity,
@@ -155,7 +152,7 @@ export const useCart = () => {
                                 : [],
                         },
                     };
-                });
+                }).filter(Boolean); // Lọc bỏ items null
 
                 // console.log('✅ ADAPTED ITEMS:', adaptedItems);
                 setCartItems(adaptedItems);
@@ -176,6 +173,104 @@ export const useCart = () => {
     useEffect(() => {
         fetchCart();
     }, [fetchCart]);
+
+    // Socket listener for real-time cart updates
+    useEffect(() => {
+        console.log('🔍 Socket useEffect triggered, user:', user?._id);
+        
+        if (!user?._id) {
+            console.log('⚠️ No user logged in, skipping socket listener');
+            return;
+        }
+
+        const socket = getSocket();
+        console.log('🔍 Socket instance:', socket ? 'present' : 'null', socket?.connected ? 'connected' : 'not connected');
+        
+        if (!socket) {
+            console.warn('⚠️ Socket not initialized!');
+            return;
+        }
+
+        const handleCartUpdated = (updatedCart) => {
+            console.log('🔔 Received cart_updated event:', updatedCart);
+            
+            // Debug: Kiểm tra cấu trúc dữ liệu nhận được
+            if (updatedCart?.items?.[0]) {
+                const firstItem = updatedCart.items[0];
+                console.log('🔍 Frontend received item structure:', {
+                    variantId: firstItem.variantId,
+                    variantIdType: typeof firstItem.variantId,
+                    hasProductId: !!firstItem.variantId?.productId,
+                    productIdType: typeof firstItem.variantId?.productId,
+                    productName: firstItem.variantId?.productId?.name || 'MISSING'
+                });
+            }
+            
+            // Cập nhật cart state với dữ liệu mới từ socket
+            setCart(updatedCart);
+
+            // Adapter giống như fetchCart
+            if (updatedCart && Array.isArray(updatedCart.items)) {
+                const adaptedItems = updatedCart.items.map((item) => {
+                    const rawVariant = item.variantId && typeof item.variantId === 'object' 
+                        ? item.variantId 
+                        : null;
+                    const rawProduct = rawVariant?.productId && typeof rawVariant.productId === 'object'
+                        ? rawVariant.productId
+                        : null;
+
+                    if (!rawVariant || !rawProduct) {
+                        console.warn('⚠️ Skipping item with missing variant/product:', item);
+                        return null;
+                    }
+
+                    const finalPrice = typeof rawVariant.price === 'object' && rawVariant.price?.$numberDecimal
+                        ? Number(rawVariant.price.$numberDecimal)
+                        : Number(rawVariant.price || 0);
+
+                    return {
+                        _id: item._id || item.id,
+                        cartId: item.cartId,
+                        quantity: item.quantity,
+                        price: Number(item.price || 0),
+
+                        product: {
+                            _id: rawProduct._id,
+                            name: rawProduct.name,
+                            slug: rawProduct.slug,
+                            imageUrls: Array.isArray(rawProduct.imageUrls) ? rawProduct.imageUrls : [],
+                            minPrice: rawProduct.minPrice,
+                            maxPrice: rawProduct.maxPrice,
+                            stockQuantity: 999,
+                        },
+
+                        variant: {
+                            _id: rawVariant._id || rawVariant.id,
+                            productId: rawProduct._id,
+                            sku: rawVariant.sku || '',
+                            price: finalPrice,
+                            stockQuantity: rawVariant.stockQuantity,
+                            attributes: rawVariant.attributes,
+                            imageUrls: Array.isArray(rawVariant.imageUrls) ? rawVariant.imageUrls : [],
+                        },
+                    };
+                }).filter(Boolean);
+
+                setCartItems(adaptedItems);
+            } else {
+                setCartItems([]);
+            }
+        };
+
+        socket.on('cart_updated', handleCartUpdated);
+        console.log('✅ Socket listener registered for cart_updated');
+
+        // Cleanup khi unmount
+        return () => {
+            console.log('🧹 Cleaning up socket listener');
+            socket.off('cart_updated', handleCartUpdated);
+        };
+    }, [user]);
 
     // Create or get cart
     const ensureCart = useCallback(async () => {
@@ -216,44 +311,22 @@ export const useCart = () => {
                 });
 
                 if (existingItem) {
-                    // Optimistic Update for existing item
-                    const existingId = getItemId(existingItem);
-                    const newQuantity = existingItem.quantity + quantity;
-
-                    setCartItems((prev) =>
-                        prev.map((item) =>
-                            getItemId(item) === existingId
-                                ? { ...item, quantity: newQuantity }
-                                : item,
-                        ),
-                    );
-
+                    // Socket sẽ tự động cập nhật quantity, không cần optimistic update
                     await apiAddItem(currentCartId, {
-                        variantId: variantId || existingItem.variantId._id, // Lưu ý: item backend trả về variant là object, cần lấy ._id
-                        quantity,
-                        userId: user?._id, // Gửi kèm userId để socket hoạt động (nếu guest)
-                    });
-                } else {
-                    // [THAY ĐỔI] Gọi API mới cho item mới
-                    // Backend trả về Cart object hoàn chỉnh, ta lấy item mới từ đó hoặc fetch lại
-                    await apiAddItem(currentCartId, {
-                        variantId: variantId, // Bắt buộc phải có variantId
+                        variantId: variantId || existingItem.variantId._id,
                         quantity,
                         userId: user?._id,
                     });
-
-                    // Vì backend trả về cả Cart, tốt nhất là gọi fetchCart() để đồng bộ lại ID thật
-                    // Nếu muốn giữ Optimistic cho new item thì hơi khó vì chưa có _id thật
-                    fetchCart();
+                } else {
+                    // Socket sẽ tự động thêm item mới vào cart
+                    await apiAddItem(currentCartId, {
+                        variantId: variantId,
+                        quantity,
+                        userId: user?._id,
+                    });
                 }
 
-                // Update cart totals (Optimistic-ish)
-                if (cart) {
-                    setCart((prev) => ({
-                        ...prev,
-                        itemCount: (prev.itemCount || 0) + quantity,
-                    }));
-                }
+                // Socket sẽ tự động cập nhật cart totals, không cần update ở đây
             } catch (err) {
                 console.error('[CART] addItem failed:', err);
                 setError(err.message || 'Failed to add item to cart');
@@ -346,24 +419,8 @@ export const useCart = () => {
                 return;
             }
 
-            // 2. Optimistic update (Cập nhật giao diện trước)
-            const quantityDiff = oldItem ? quantity - oldItem.quantity : 0;
-
-            setCartItems((prev) =>
-                prev.map((item) =>
-                    getItemId(item) === itemId ? { ...item, quantity } : item,
-                ),
-            );
-
-            if (cart && oldItem) {
-                setCart((prev) => ({
-                    ...prev,
-                    itemCount: Math.max(
-                        0,
-                        (prev.itemCount || 0) + quantityDiff,
-                    ),
-                }));
-            }
+            // Socket sẽ tự động cập nhật quantity và cart totals
+            // Không cần optimistic update để tránh conflict
 
             // 3. Clear existing timeout
             if (updateTimeoutsRef.current.has(itemId)) {
@@ -405,37 +462,19 @@ export const useCart = () => {
 
                     // 6. Race Condition Check
                     if (requestIdRef.current.get(itemId) === newReqId) {
-                        // Gọi fetchCart để đồng bộ lại giá tiền chuẩn từ server
-                        // Vì API Add/Remove trả về Cart object, ta có thể dùng luôn nếu muốn tối ưu hơn
-                        fetchCart();
-
+                        // Socket sẽ tự động cập nhật cart, không cần fetchCart() nữa
+                        // để tránh race condition và data không nhất quán
+                        
                         // Clean up refs
                         updateTimeoutsRef.current.delete(itemId);
                         requestIdRef.current.delete(itemId);
                     }
                 } catch (err) {
-                    // Revert logic (Giữ nguyên như cũ)
+                    // Nếu có lỗi, fetchCart để sync lại với server
                     if (requestIdRef.current.get(itemId) === newReqId) {
                         console.error('Error updating quantity:', err);
                         setError(err.message || 'Failed to update quantity');
-
-                        if (oldItem) {
-                            setCartItems((prev) =>
-                                prev.map((item) =>
-                                    getItemId(item) === itemId ? oldItem : item,
-                                ),
-                            );
-                            if (cart) {
-                                const revertDiff = oldItem.quantity - quantity;
-                                setCart((prev) => ({
-                                    ...prev,
-                                    itemCount: Math.max(
-                                        0,
-                                        (prev.itemCount || 0) + revertDiff,
-                                    ),
-                                }));
-                            }
-                        }
+                        fetchCart(); // Sync lại từ server
                     }
                 }
             }, 300);
